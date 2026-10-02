@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { PublicLayout, AppLayout } from './components/Layout'
-import { RequireAuth, RequireRole } from './components/Guards'
+import { RequireAuth, RequireRole, RequireAdmin } from './components/Guards'
 
 import Landing from './pages/Landing'
 import Courses from './pages/Courses'
@@ -23,6 +23,7 @@ import CourseBuilder from './pages/teacher/CourseBuilder'
 
 import LiveClassroom from './pages/classroom/LiveClassroom'
 
+import AdminLogin from './pages/admin/AdminLogin'
 import AdminOverview from './pages/admin/AdminOverview'
 import AdminCourses from './pages/admin/AdminCourses'
 import AdminPeople from './pages/admin/AdminPeople'
@@ -49,7 +50,7 @@ export default function App() {
           </Route>
 
           {/* Student */}
-          <Route element={<RequireRole roles={['student', 'admin']}><AppLayout /></RequireRole>}>
+          <Route element={<RequireRole roles={['student']}><AppLayout /></RequireRole>}>
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/my-courses" element={<MyCourses />} />
             <Route path="/learn/:courseId" element={<CoursePlayer />} />
@@ -59,14 +60,15 @@ export default function App() {
           </Route>
 
           {/* Teacher */}
-          <Route element={<RequireRole roles={['teacher', 'admin']}><AppLayout /></RequireRole>}>
+          <Route element={<RequireRole roles={['teacher']}><AppLayout /></RequireRole>}>
             <Route path="/teach" element={<TeacherDashboard />} />
             <Route path="/teach/courses/:courseId" element={<CourseBuilder />} />
             <Route path="/teach/batches" element={<TeacherBatches />} />
           </Route>
 
-          {/* Admin */}
-          <Route element={<RequireRole roles={['admin']}><AppLayout /></RequireRole>}>
+          {/* Admin portal — separate URL and login */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route element={<RequireAdmin><AppLayout /></RequireAdmin>}>
             <Route path="/admin" element={<AdminOverview />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/people" element={<AdminPeople />} />

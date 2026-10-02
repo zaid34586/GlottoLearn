@@ -20,3 +20,29 @@ export function RequireRole({ roles, children }: { roles: Role[]; children: Reac
   if (!profile || !roles.includes(profile.role)) return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
+
+/** Admin portal guard — non-admins get an access-denied screen, not the panel */
+export function RequireAdmin({ children }: { children: ReactNode }) {
+  const { session, profile, loading, signOut } = useAuth()
+  const location = useLocation()
+  if (loading) return <PageLoader />
+  if (!session) return <Navigate to="/admin/login" state={{ from: location.pathname }} replace />
+  if (!profile || profile.role !== 'admin') {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="glass-strong max-w-md rounded-3xl p-8 text-center animate-fade-up">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-2xl">🚫</div>
+          <h1 className="font-display mt-4 text-xl font-bold text-slate-900">Access restricted</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            This area is only for administrators. If you believe this is a mistake, contact the site owner.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <a href="/" className="btn-ghost">← Main site</a>
+            <button onClick={() => signOut()} className="btn-danger">Sign out</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  return <>{children}</>
+}
