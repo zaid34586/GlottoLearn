@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { ScrollProgress } from './ui'
 import { cn } from '../lib/utils'
 import type { Role } from '../lib/types'
 
@@ -27,6 +28,7 @@ export function PublicLayout() {
   const navigate = useNavigate()
   return (
     <div className="min-h-screen">
+      <ScrollProgress />
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Logo />

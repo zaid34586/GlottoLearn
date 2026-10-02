@@ -12,7 +12,7 @@ export function CourseCard({ course }: { course: Course }) {
         to={`/courses/${course.id}`}
         className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-2xl"
       >
-        <div className={`relative h-44 overflow-hidden bg-gradient-to-br ${t.gradient}`}>
+        <div className={`shine relative h-44 overflow-hidden bg-gradient-to-br ${t.gradient}`}>
           {course.cover_url ? (
             <img src={course.cover_url} alt={course.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           ) : (

@@ -1,5 +1,5 @@
 import type { ReactNode, CSSProperties } from 'react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '../lib/utils'
 
 export function Spinner({ className }: { className?: string }) {
@@ -119,6 +119,99 @@ export function StatCard({ label, value, icon, accent }: { label: string; value:
           {icon}
         </div>
       </div>
+    </div>
+  )
+}
+
+/** Fade-up the first time the element scrolls into view */
+export function Reveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.12 },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: shown ? 1 : 0,
+        transform: shown ? 'none' : 'translateY(26px)',
+        transition: `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+/** Counts from 0 to `to` when scrolled into view */
+export function CountUp({ to, suffix = '', duration = 1.6, decimals = 0 }: { to: number; suffix?: string; duration?: number; decimals?: number }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [val, setVal] = useState(0)
+  const started = useRef(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting && !started.current) {
+          started.current = true
+          const t0 = performance.now()
+          const tick = (t: number) => {
+            const p = Math.min(1, (t - t0) / (duration * 1000))
+            const eased = 1 - Math.pow(1 - p, 3)
+            setVal(to * eased)
+            if (p < 1) requestAnimationFrame(tick)
+          }
+          requestAnimationFrame(tick)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [to, duration])
+  return (
+    <span ref={ref}>
+      {val.toFixed(decimals)}
+      {suffix}
+    </span>
+  )
+}
+
+/** Thin gradient bar at the very top showing page scroll progress */
+export function ScrollProgress() {
+  const [w, setW] = useState(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement
+      const max = h.scrollHeight - h.clientHeight
+      setW(max > 0 ? (h.scrollTop / max) * 100 : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 h-1">
+      <div
+        className="h-full rounded-r-full"
+        style={{ width: `${w}%`, background: 'linear-gradient(90deg, #14b8a6, #6366f1, #d946ef)' }}
+      />
     </div>
   )
 }

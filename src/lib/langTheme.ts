@@ -87,6 +87,18 @@ export function getLangTheme(lang?: Language | null): LangTheme {
   }
 }
 
+/** Curated languages for the landing "spotlight" grid */
+export const langSpotlight: { code: string; name: string; flag: string }[] = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+]
+
 /** All greetings for the hero 3D scene / marquee */
 export const greetings: { word: string; lang: string; accent: string }[] = [
   { word: 'Hello', lang: 'en', accent: '#3b82f6' },
