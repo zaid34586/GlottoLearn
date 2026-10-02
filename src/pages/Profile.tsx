@@ -26,25 +26,25 @@ export default function Profile() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="font-display text-2xl font-bold text-white">My Profile</h1>
+      <h1 className="font-display text-2xl font-bold text-slate-900">My Profile</h1>
       <div className="glass mt-6 rounded-2xl p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 font-display text-2xl font-bold text-white">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 font-display text-2xl font-bold text-slate-900">
             {fullName?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div>
-            <p className="font-display text-lg font-bold text-white">{profile?.full_name}</p>
-            <p className="text-sm text-white/50">{session?.user.email}</p>
+            <p className="font-display text-lg font-bold text-slate-900">{profile?.full_name}</p>
+            <p className="text-sm text-slate-500">{session?.user.email}</p>
             <div className="mt-1.5"><Badge tone={profile?.role === 'admin' ? 'red' : profile?.role === 'teacher' ? 'amber' : 'indigo'}>{profile?.role?.toUpperCase()}</Badge></div>
           </div>
         </div>
-        <form onSubmit={save} className="mt-6 space-y-4 border-t border-white/10 pt-6">
+        <form onSubmit={save} className="mt-6 space-y-4 border-t border-slate-200 pt-6">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Display name</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Display name</label>
             <input className="field" value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
           <button className="btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Save Changes'}</button>
-          {saved && <span className="ml-3 text-sm text-emerald-300">Saved ✓</span>}
+          {saved && <span className="ml-3 text-sm text-emerald-600">Saved ✓</span>}
         </form>
       </div>
     </div>

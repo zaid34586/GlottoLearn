@@ -25,22 +25,22 @@ export default function Login() {
     <div className="relative flex min-h-[80vh] items-center justify-center px-4">
       <div className="glow-orb left-1/4 top-10 h-72 w-72 bg-indigo-600/40" />
       <div className="glass-strong relative w-full max-w-md rounded-3xl p-8 animate-fade-up">
-        <h1 className="font-display text-2xl font-bold text-white">Welcome back 👋</h1>
-        <p className="mt-1 text-sm text-white/50">Sign in to continue your learning journey.</p>
+        <h1 className="font-display text-2xl font-bold text-slate-900">Welcome back 👋</h1>
+        <p className="mt-1 text-sm text-slate-500">Sign in to continue your learning journey.</p>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Email</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
             <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Password</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Password</label>
             <input className="field" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 border border-red-400/30 px-3 py-2 text-sm text-red-300">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 border border-red-400/30 px-3 py-2 text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full" disabled={busy}>{busy ? 'Signing in…' : 'Sign In'}</button>
         </form>
-        <p className="mt-5 text-center text-sm text-white/50">
-          New to GlottoLearn? <Link to="/signup" className="font-semibold text-indigo-300 hover:text-indigo-200">Create an account</Link>
+        <p className="mt-5 text-center text-sm text-slate-500">
+          New to GlottoLearn? <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-600">Create an account</Link>
         </p>
       </div>
     </div>

@@ -35,8 +35,8 @@ export default function LiveClasses() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="font-display text-2xl font-bold text-white">Live Classes</h1>
-      <p className="mt-1 text-sm text-white/50">Join your scheduled classes right inside the app.</p>
+      <h1 className="font-display text-2xl font-bold text-slate-900">Live Classes</h1>
+      <p className="mt-1 text-sm text-slate-500">Join your scheduled classes right inside the app.</p>
       {batches.length === 0 ? (
         <div className="mt-8">
           <EmptyState icon="🎥" title="No live classes scheduled" hint="When your teacher schedules a class, it will appear here." />
@@ -50,15 +50,15 @@ export default function LiveClasses() {
               <div key={b.id} className="glass flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-white">{b.title}</p>
+                    <p className="font-semibold text-slate-900">{b.title}</p>
                     {b.status === 'live' ? <Badge tone="green">🔴 LIVE NOW</Badge> : <Badge tone="indigo">{timeUntil(b.scheduled_at)}</Badge>}
                   </div>
-                  <p className="mt-1 text-xs text-white/45">{(b as any).course?.title} · {formatDate(b.scheduled_at)} · {b.duration_min} min</p>
+                  <p className="mt-1 text-xs text-slate-400">{(b as any).course?.title} · {formatDate(b.scheduled_at)} · {b.duration_min} min</p>
                 </div>
                 {canJoin ? (
                   <Link to={`/live/${b.id}`} className="btn-primary">Join Class →</Link>
                 ) : (
-                  <span className="text-xs text-white/40">Join window opens 15 min before start</span>
+                  <span className="text-xs text-slate-400">Join window opens 15 min before start</span>
                 )}
               </div>
             )

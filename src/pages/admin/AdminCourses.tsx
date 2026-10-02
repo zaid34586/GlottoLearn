@@ -66,8 +66,8 @@ export default function AdminCourses() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Course Manager</h1>
-          <p className="mt-1 text-sm text-white/50">Create, publish and control every course.</p>
+          <h1 className="font-display text-2xl font-bold text-slate-900">Course Manager</h1>
+          <p className="mt-1 text-sm text-slate-500">Create, publish and control every course.</p>
         </div>
         <button className="btn-primary" onClick={() => setShowCreate(true)}>+ New Course</button>
       </div>
@@ -80,20 +80,20 @@ export default function AdminCourses() {
             <div key={c.id} className="glass grid gap-4 rounded-2xl p-5 lg:grid-cols-[1.5fr_1fr_1fr_auto] lg:items-center">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-display truncate font-bold text-white">{c.title}</p>
+                  <p className="font-display truncate font-bold text-slate-900">{c.title}</p>
                   <Badge tone={c.status === 'published' ? 'green' : 'slate'}>{c.status.toUpperCase()}</Badge>
                 </div>
-                <p className="mt-0.5 text-xs text-white/45">{c.language?.name ?? '—'} · {c.level} · Teacher: {c.teacher?.full_name ?? 'Unassigned'}</p>
+                <p className="mt-0.5 text-xs text-slate-400">{c.language?.name ?? '—'} · {c.level} · Teacher: {c.teacher?.full_name ?? 'Unassigned'}</p>
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-white/40">Teacher</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Teacher</label>
                 <select className="field !py-2" value={c.teacher_id ?? ''} onChange={(e) => assignTeacher(c, e.target.value)}>
                   <option value="">Unassigned</option>
                   {teachers.map((t) => <option key={t.id} value={t.id}>{t.full_name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-white/40">Price (₹)</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Price (₹)</label>
                 <input className="field !py-2" type="number" min="0" defaultValue={c.price_inr} onBlur={(e) => setPrice(c, e.target.value)} />
               </div>
               <div className="flex gap-2">
@@ -139,12 +139,12 @@ export default function AdminCourses() {
               {teachers.map((t) => <option key={t.id} value={t.id}>{t.full_name} ({t.role})</option>)}
             </select>
           </div>
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full">Create Course</button>
         </form>
       </Modal>
 
-      <p className="mt-6 text-xs text-white/35">Total catalog value: {formatINR(courses.reduce((s, c) => s + Number(c.price_inr), 0))}</p>
+      <p className="mt-6 text-xs text-slate-400">Total catalog value: {formatINR(courses.reduce((s, c) => s + Number(c.price_inr), 0))}</p>
     </div>
   )
 }

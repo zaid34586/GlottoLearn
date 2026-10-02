@@ -102,14 +102,14 @@ export default function CoursePlayer() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{getLangTheme(course.language).flag}</span>
-                <h1 className="font-display text-xl font-bold text-white">{course.title}</h1>
+                <h1 className="font-display text-xl font-bold text-slate-900">{course.title}</h1>
               </div>
-              <p className="mt-0.5 text-sm text-white/45">
+              <p className="mt-0.5 text-sm text-slate-400">
                 {course.language ? `${course.language.name} · ` : ''}{course.level} · Teacher: {course.teacher?.full_name ?? '—'}
               </p>
             </div>
             <div className="w-48">
-              <div className="mb-1 flex justify-between text-xs text-white/50"><span>Progress</span><span className="font-semibold text-white">{pct}%</span></div>
+              <div className="mb-1 flex justify-between text-xs text-slate-500"><span>Progress</span><span className="font-semibold text-slate-900">{pct}%</span></div>
               <Progress value={pct} />
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function CoursePlayer() {
                 onClick={() => setTab(t.id)}
                 className={cn(
                   'whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition',
-                  tab === t.id ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/55 hover:text-white',
+                  tab === t.id ? 'border-indigo-400/60 bg-indigo-500/20 text-slate-900' : 'border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-900',
                 )}
               >
                 {t.icon} {t.label}
@@ -138,7 +138,7 @@ export default function CoursePlayer() {
             {modules.length === 0 && <EmptyState icon="🎬" title="No lessons yet" hint="Your teacher is preparing the course content." />}
             {modules.map((m) => (
               <div key={m.id}>
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-white/60">{m.title}</h3>
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-500">{m.title}</h3>
                 <div className="space-y-2">
                   {lessons.filter((l) => l.module_id === m.id).map((l) => (
                     <button
@@ -146,15 +146,15 @@ export default function CoursePlayer() {
                       onClick={() => setActiveLesson(l)}
                       className={cn(
                         'flex w-full items-center gap-3 rounded-xl border p-3 text-left transition',
-                        activeLesson?.id === l.id ? 'border-indigo-400/50 bg-indigo-500/15' : 'border-white/10 bg-white/4 hover:bg-white/8',
+                        activeLesson?.id === l.id ? 'border-indigo-400/50 bg-indigo-500/15' : 'border-slate-200 bg-slate-50 hover:bg-slate-100',
                       )}
                     >
-                      <span className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold', doneIds.has(l.id) ? 'bg-emerald-500/25 text-emerald-300' : 'bg-white/10 text-white/60')}>
+                      <span className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold', doneIds.has(l.id) ? 'bg-emerald-500/25 text-emerald-600' : 'bg-slate-100 text-slate-500')}>
                         {doneIds.has(l.id) ? '✓' : l.position}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-white">{l.title}</span>
-                        <span className="text-xs text-white/40">{formatDuration(l.duration_sec)}</span>
+                        <span className="block truncate text-sm font-medium text-slate-900">{l.title}</span>
+                        <span className="text-xs text-slate-400">{formatDuration(l.duration_sec)}</span>
                       </span>
                     </button>
                   ))}
@@ -173,13 +173,13 @@ export default function CoursePlayer() {
                   {videoUrl ? (
                     <video key={videoUrl} src={videoUrl} controls className="aspect-video w-full" />
                   ) : (
-                    <div className="flex aspect-video items-center justify-center text-white/40"><PageLoader /></div>
+                    <div className="flex aspect-video items-center justify-center text-slate-400"><PageLoader /></div>
                   )}
                 </div>
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h2 className="font-display text-lg font-bold text-white">{activeLesson.title}</h2>
-                    {activeLesson.content && <p className="mt-1 max-w-2xl text-sm text-white/55">{activeLesson.content}</p>}
+                    <h2 className="font-display text-lg font-bold text-slate-900">{activeLesson.title}</h2>
+                    {activeLesson.content && <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeLesson.content}</p>}
                   </div>
                   <button
                     className={doneIds.has(activeLesson.id) ? 'btn-ghost' : 'btn-primary'}
@@ -208,8 +208,8 @@ export default function CoursePlayer() {
                 {batches.map((b) => (
                   <div key={b.id} className="glass flex items-center justify-between rounded-xl px-5 py-4">
                     <div>
-                      <p className="font-semibold text-white">{b.title}</p>
-                      <p className="text-xs text-white/45">{formatDate(b.scheduled_at)} · {b.duration_min} min</p>
+                      <p className="font-semibold text-slate-900">{b.title}</p>
+                      <p className="text-xs text-slate-400">{formatDate(b.scheduled_at)} · {b.duration_min} min</p>
                     </div>
                     {b.status === 'live'
                       ? <Link to={`/live/${b.id}`} className="btn-primary">🔴 Join Now</Link>
@@ -229,10 +229,10 @@ export default function CoursePlayer() {
                     <div key={q.id} className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-5 py-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-white">{q.title}</p>
+                          <p className="font-semibold text-slate-900">{q.title}</p>
                           <Badge tone={q.is_graded ? 'amber' : 'green'}>{q.is_graded ? 'GRADED EXAM' : 'PRACTICE'}</Badge>
                         </div>
-                        <p className="mt-0.5 text-xs text-white/45">
+                        <p className="mt-0.5 text-xs text-slate-400">
                           {q.description || 'Test your knowledge'}{q.time_limit_min ? ` · ${q.time_limit_min} min limit` : ''}
                         </p>
                       </div>
@@ -266,10 +266,10 @@ export default function CoursePlayer() {
                 {announcements.map((a) => (
                   <div key={a.id} className="glass rounded-xl p-5">
                     <div className="flex items-center justify-between">
-                      <p className="font-semibold text-white">{a.title}</p>
-                      <span className="text-xs text-white/40">{formatDate(a.created_at)}</span>
+                      <p className="font-semibold text-slate-900">{a.title}</p>
+                      <span className="text-xs text-slate-400">{formatDate(a.created_at)}</span>
                     </div>
-                    <p className="mt-1.5 text-sm text-white/60">{a.body}</p>
+                    <p className="mt-1.5 text-sm text-slate-500">{a.body}</p>
                   </div>
                 ))}
               </div>
@@ -290,8 +290,8 @@ function RecordingCard({ rec }: { rec: Recording }) {
     <div className="glass overflow-hidden rounded-2xl">
       {url && <video key={url} src={url} controls className="aspect-video w-full bg-black" />}
       <div className="p-4">
-        <p className="font-semibold text-white">{rec.title}</p>
-        <p className="text-xs text-white/40">{formatDate(rec.created_at)} · {formatDuration(rec.duration_sec)}</p>
+        <p className="font-semibold text-slate-900">{rec.title}</p>
+        <p className="text-xs text-slate-400">{formatDate(rec.created_at)} · {formatDuration(rec.duration_sec)}</p>
       </div>
     </div>
   )
@@ -305,8 +305,8 @@ function MaterialCard({ title, path }: { title: string; path: string }) {
   return (
     <button onClick={download} className="glass glass-hover flex items-center gap-3 rounded-xl p-4 text-left">
       <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 text-lg">📄</span>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">{title}</span>
-      <span className="text-xs font-semibold text-indigo-300">Download</span>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-900">{title}</span>
+      <span className="text-xs font-semibold text-indigo-600">Download</span>
     </button>
   )
 }

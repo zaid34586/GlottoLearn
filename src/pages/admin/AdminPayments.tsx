@@ -58,9 +58,9 @@ export default function AdminPayments() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Payments</h1>
-          <p className="mt-1 text-sm text-white/50">
-            {paid.length} transactions · Revenue: <span className="font-bold text-emerald-300">{formatINR(revenue)}</span>
+          <h1 className="font-display text-2xl font-bold text-slate-900">Payments</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {paid.length} transactions · Revenue: <span className="font-bold text-emerald-600">{formatINR(revenue)}</span>
             {isDemoPayments && ' · ⚠ demo mode'}
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function AdminPayments() {
       ) : (
         <div className="glass mt-6 overflow-x-auto rounded-2xl">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-xs uppercase tracking-wider text-white/40">
+            <thead className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="px-5 py-3">Date</th>
                 <th className="px-5 py-3">Student</th>
@@ -85,18 +85,18 @@ export default function AdminPayments() {
             </thead>
             <tbody>
               {payments.map((p) => (
-                <tr key={p.id} className="border-b border-white/5 last:border-0">
-                  <td className="px-5 py-3 text-white/50">{formatDate(p.created_at)}</td>
-                  <td className="px-5 py-3 text-white/85">{p.student?.full_name ?? p.student_id.slice(0, 8)}</td>
-                  <td className="px-5 py-3 text-white/70">{(p as any).course?.title ?? '—'}</td>
-                  <td className="px-5 py-3 font-semibold text-white">{formatINR(Number(p.amount))}</td>
-                  <td className="px-5 py-3 text-xs uppercase text-white/40">{p.gateway}</td>
+                <tr key={p.id} className="border-b border-slate-100 last:border-0">
+                  <td className="px-5 py-3 text-slate-500">{formatDate(p.created_at)}</td>
+                  <td className="px-5 py-3 text-slate-800">{p.student?.full_name ?? p.student_id.slice(0, 8)}</td>
+                  <td className="px-5 py-3 text-slate-600">{(p as any).course?.title ?? '—'}</td>
+                  <td className="px-5 py-3 font-semibold text-slate-900">{formatINR(Number(p.amount))}</td>
+                  <td className="px-5 py-3 text-xs uppercase text-slate-400">{p.gateway}</td>
                   <td className="px-5 py-3">
                     <Badge tone={p.status === 'paid' ? 'green' : p.status === 'pending' ? 'amber' : 'red'}>{p.status.toUpperCase()}</Badge>
                   </td>
                   <td className="px-5 py-3">
                     {p.status === 'paid' && (
-                      <button className="text-xs font-semibold text-amber-300/80 hover:text-amber-300" onClick={() => markRefunded(p)}>Mark refunded</button>
+                      <button className="text-xs font-semibold text-amber-600 hover:text-amber-600" onClick={() => markRefunded(p)}>Mark refunded</button>
                     )}
                   </td>
                 </tr>

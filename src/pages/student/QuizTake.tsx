@@ -112,32 +112,32 @@ export default function QuizTake() {
     <div className="mx-auto max-w-3xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">{quiz.title}</h1>
-          <p className="mt-0.5 text-sm text-white/50">{quiz.description} · {questions.length} questions · {totalMarks} marks</p>
+          <h1 className="font-display text-2xl font-bold text-slate-900">{quiz.title}</h1>
+          <p className="mt-0.5 text-sm text-slate-500">{quiz.description} · {questions.length} questions · {totalMarks} marks</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge tone={quiz.is_graded ? 'amber' : 'green'}>{quiz.is_graded ? 'GRADED' : 'PRACTICE'}</Badge>
           {mm !== null && (
-            <span className={`font-display rounded-xl px-4 py-2 text-lg font-bold tabular-nums ${remaining! < 60 ? 'bg-red-500/20 text-red-300' : 'glass text-white'}`}>
+            <span className={`font-display rounded-xl px-4 py-2 text-lg font-bold tabular-nums ${remaining! < 60 ? 'bg-red-500/20 text-red-600' : 'glass text-slate-900'}`}>
               {mm}:{ss}
             </span>
           )}
         </div>
       </div>
 
-      {remaining === 0 && <p className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">Time is up — submit your test.</p>}
+      {remaining === 0 && <p className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm text-red-600">Time is up — submit your test.</p>}
 
       <div className="mt-6 space-y-4">
         {questions.map((q, i) => (
           <div key={q.id} className="glass rounded-2xl p-5">
-            <p className="font-medium text-white">
-              <span className="mr-2 text-indigo-300">Q{i + 1}.</span>{q.text}
-              <span className="ml-2 text-xs text-white/40">({q.marks} {q.marks === 1 ? 'mark' : 'marks'})</span>
+            <p className="font-medium text-slate-900">
+              <span className="mr-2 text-indigo-600">Q{i + 1}.</span>{q.text}
+              <span className="ml-2 text-xs text-slate-400">({q.marks} {q.marks === 1 ? 'mark' : 'marks'})</span>
             </p>
             {q.type === 'mcq' && (
               <div className="mt-3 space-y-2">
                 {(q.options ?? []).map((opt) => (
-                  <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/4 px-4 py-2.5 text-sm text-white/75 transition hover:border-indigo-400/40">
+                  <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 transition hover:border-indigo-400/40">
                     <input
                       type="radio"
                       name={q.id}
@@ -156,7 +156,7 @@ export default function QuizTake() {
                   <button
                     key={opt}
                     onClick={() => saveAnswer(q.id, opt)}
-                    className={`rounded-xl border px-5 py-2 text-sm font-semibold transition ${answers[q.id] === opt ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/60'}`}
+                    className={`rounded-xl border px-5 py-2 text-sm font-semibold transition ${answers[q.id] === opt ? 'border-indigo-400/60 bg-indigo-500/20 text-slate-900' : 'border-slate-200 bg-slate-100 text-slate-500'}`}
                   >
                     {opt}
                   </button>

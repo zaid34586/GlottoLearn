@@ -47,13 +47,13 @@ export default function QuizResult() {
     <div className="mx-auto max-w-3xl">
       <div className="glass-strong rounded-3xl p-8 text-center">
         <p className="text-5xl">{pct >= 80 ? '🏆' : pct >= 50 ? '👏' : '💪'}</p>
-        <h1 className="font-display mt-3 text-2xl font-bold text-white">{quiz.title} — Result</h1>
-        {autoSubmitted && <p className="mt-1 text-sm text-amber-300">Time expired — submitted automatically.</p>}
+        <h1 className="font-display mt-3 text-2xl font-bold text-slate-900">{quiz.title} — Result</h1>
+        {autoSubmitted && <p className="mt-1 text-sm text-amber-600">Time expired — submitted automatically.</p>}
         <p className="font-display mt-4 text-4xl font-extrabold text-gradient">
           {Number(attempt.score)} / {Number(attempt.total_marks)}
         </p>
         <div className="mx-auto mt-4 max-w-sm"><Progress value={pct} /></div>
-        <p className="mt-2 text-sm text-white/50">{pct}% correct</p>
+        <p className="mt-2 text-sm text-slate-500">{pct}% correct</p>
       </div>
 
       <div className="mt-6 space-y-4">
@@ -62,13 +62,13 @@ export default function QuizResult() {
           const objective = q.type !== 'short'
           return (
             <div key={q.id} className="glass rounded-2xl p-5">
-              <p className="font-medium text-white">
-                <span className="mr-2 text-indigo-300">Q{i + 1}.</span>{q.text}
+              <p className="font-medium text-slate-900">
+                <span className="mr-2 text-indigo-600">Q{i + 1}.</span>{q.text}
               </p>
               <div className="mt-3 space-y-1.5 text-sm">
-                <p className="text-white/60">Your answer: <span className="font-semibold text-white">{a?.answer_text || '—'}</span></p>
-                {!objective && <p className="text-white/60">Correct answer: <span className="font-semibold text-emerald-300">{q.correct_answer}</span></p>}
-                <p className={objective ? (a?.is_correct ? 'text-emerald-300' : 'text-red-300') : 'text-amber-300'}>
+                <p className="text-slate-500">Your answer: <span className="font-semibold text-slate-900">{a?.answer_text || '—'}</span></p>
+                {!objective && <p className="text-slate-500">Correct answer: <span className="font-semibold text-emerald-600">{q.correct_answer}</span></p>}
+                <p className={objective ? (a?.is_correct ? 'text-emerald-600' : 'text-red-600') : 'text-amber-600'}>
                   {objective ? (a?.is_correct ? '✓ Correct' : '✗ Incorrect') : '⏳ Short answer — reviewed by your teacher'}
                 </p>
               </div>

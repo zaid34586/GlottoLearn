@@ -17,14 +17,14 @@ export function CourseCard({ course }: { course: Course }) {
             <img src={course.cover_url} alt={course.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           ) : (
             <>
-              <span className="font-display absolute -bottom-4 left-3 select-none text-6xl font-black italic text-white/15 transition duration-500 group-hover:scale-105">
+              <span className="font-display absolute -bottom-4 left-3 select-none text-6xl font-black italic text-slate-200 transition duration-500 group-hover:scale-105">
                 {t.greeting}
               </span>
               <span className="absolute right-4 top-4 text-4xl drop-shadow-lg transition duration-500 group-hover:scale-125">
                 {t.flag}
               </span>
               <span
-                className="absolute bottom-4 right-4 rounded-full px-3 py-1 text-xs font-bold text-white backdrop-blur"
+                className="absolute bottom-4 right-4 rounded-full px-3 py-1 text-xs font-bold text-slate-900 backdrop-blur"
                 style={{ background: t.chip }}
               >
                 {t.word}
@@ -37,8 +37,8 @@ export function CourseCard({ course }: { course: Course }) {
           </div>
         </div>
         <div className="flex flex-1 flex-col gap-2 p-5">
-          <h3 className="font-display line-clamp-2 text-lg font-semibold text-white">{course.title}</h3>
-          <p className="line-clamp-2 flex-1 text-sm text-white/50">{course.description || 'Master this language step by step with live classes and recorded lessons.'}</p>
+          <h3 className="font-display line-clamp-2 text-lg font-semibold text-slate-900">{course.title}</h3>
+          <p className="line-clamp-2 flex-1 text-sm text-slate-500">{course.description || 'Master this language step by step with live classes and recorded lessons.'}</p>
           <div className="mt-2 flex items-center justify-between">
             <span className="font-display text-lg font-bold text-gradient">{formatINR(course.price_inr)}</span>
             <span className="text-xs font-semibold transition group-hover:translate-x-0.5" style={{ color: t.accent }}>

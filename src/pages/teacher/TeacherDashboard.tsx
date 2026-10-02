@@ -78,10 +78,10 @@ export default function TeacherDashboard() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: 'var(--role-accent, #fbbf24)' }}>
               Teacher · Studio
             </p>
-            <h1 className="font-display mt-2 text-3xl font-semibold text-white md:text-4xl">
+            <h1 className="font-display mt-2 text-3xl font-semibold text-slate-900 md:text-4xl">
               Welcome, <span className="text-gradient italic">{profile?.full_name?.split(' ')[0]}</span>
             </h1>
-            <p className="mt-2 text-sm text-white/50">Build courses, schedule classes and inspire your students.</p>
+            <p className="mt-2 text-sm text-slate-500">Build courses, schedule classes and inspire your students.</p>
           </div>
           <button className="btn-primary" onClick={() => setShowCreate(true)}>+ New Course</button>
         </div>
@@ -89,12 +89,12 @@ export default function TeacherDashboard() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <StatCard label="My Courses" value={courses.length} icon="📚" />
-        <StatCard label="Enrolled Students" value={enrollCount} icon="👥" accent="bg-emerald-500/15 text-emerald-300" />
-        <StatCard label="Upcoming Classes" value={batches.length} icon="🗓️" accent="bg-amber-500/15 text-amber-300" />
+        <StatCard label="Enrolled Students" value={enrollCount} icon="👥" accent="bg-emerald-500/15 text-emerald-600" />
+        <StatCard label="Upcoming Classes" value={batches.length} icon="🗓️" accent="bg-amber-500/15 text-amber-600" />
       </div>
 
       {/* Courses */}
-      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-white">My Courses</h2>
+      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-slate-900">My Courses</h2>
       {courses.length === 0 ? (
         <EmptyState icon="📚" title="No courses yet" hint="Create your first course, add lessons and publish it." action={<button className="btn-primary mt-2" onClick={() => setShowCreate(true)}>+ New Course</button>} />
       ) : (
@@ -103,15 +103,15 @@ export default function TeacherDashboard() {
             <Link key={c.id} to={`/teach/courses/${c.id}`} className="glass glass-hover rounded-2xl p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="font-display truncate font-bold text-white">{c.title}</h3>
-                  <p className="mt-0.5 text-xs text-white/45">{c.language?.name} · {c.level}</p>
+                  <h3 className="font-display truncate font-bold text-slate-900">{c.title}</h3>
+                  <p className="mt-0.5 text-xs text-slate-400">{c.language?.name} · {c.level}</p>
                 </div>
                 <Badge tone={c.status === 'published' ? 'green' : 'slate'}>{c.status.toUpperCase()}</Badge>
               </div>
-              <p className="mt-2 line-clamp-2 text-sm text-white/50">{c.description || 'No description yet.'}</p>
+              <p className="mt-2 line-clamp-2 text-sm text-slate-500">{c.description || 'No description yet.'}</p>
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-sm font-bold text-gradient">{formatINR(c.price_inr)}</span>
-                <span className="text-xs font-semibold text-indigo-300">Manage →</span>
+                <span className="text-xs font-semibold text-indigo-600">Manage →</span>
               </div>
             </Link>
           ))}
@@ -119,17 +119,17 @@ export default function TeacherDashboard() {
       )}
 
       {/* Next classes */}
-      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-white">Next Classes</h2>
+      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-slate-900">Next Classes</h2>
       <div className="space-y-3">
-        {batches.length === 0 && <div className="glass rounded-2xl p-6 text-center text-sm text-white/45">No classes scheduled. Go to Batches to schedule one.</div>}
+        {batches.length === 0 && <div className="glass rounded-2xl p-6 text-center text-sm text-slate-400">No classes scheduled. Go to Batches to schedule one.</div>}
         {batches.slice(0, 5).map((b) => (
           <div key={b.id} className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-5 py-4">
             <div>
               <div className="flex items-center gap-2">
-                <p className="font-semibold text-white">{b.title}</p>
+                <p className="font-semibold text-slate-900">{b.title}</p>
                 {b.status === 'live' ? <Badge tone="green">🔴 LIVE</Badge> : <Badge tone="indigo">Scheduled</Badge>}
               </div>
-              <p className="mt-0.5 text-xs text-white/45">{(b as any).course?.title} · {formatDate(b.scheduled_at)}</p>
+              <p className="mt-0.5 text-xs text-slate-400">{(b as any).course?.title} · {formatDate(b.scheduled_at)}</p>
             </div>
             {b.status === 'live'
               ? <Link to={`/live/${b.id}`} className="btn-primary !py-2">Enter Classroom →</Link>
@@ -139,20 +139,20 @@ export default function TeacherDashboard() {
       </div>
 
       {/* Students list */}
-      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-white">Students ({students.length} on platform)</h2>
+      <h2 className="font-display mt-8 mb-4 text-lg font-bold text-slate-900">Students ({students.length} on platform)</h2>
       <div className="glass overflow-x-auto rounded-2xl">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-white/10 text-xs uppercase tracking-wider text-white/40">
+          <thead className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400">
             <tr><th className="px-5 py-3">Name</th><th className="px-5 py-3">Joined</th></tr>
           </thead>
           <tbody>
             {students.slice(0, 8).map((s) => (
-              <tr key={s.id} className="border-b border-white/5 last:border-0">
-                <td className="px-5 py-3 text-white/80">{s.full_name}</td>
-                <td className="px-5 py-3 text-white/40">{formatDate(s.created_at)}</td>
+              <tr key={s.id} className="border-b border-slate-100 last:border-0">
+                <td className="px-5 py-3 text-slate-700">{s.full_name}</td>
+                <td className="px-5 py-3 text-slate-400">{formatDate(s.created_at)}</td>
               </tr>
             ))}
-            {students.length === 0 && <tr><td colSpan={2} className="px-5 py-6 text-center text-white/40">No students yet.</td></tr>}
+            {students.length === 0 && <tr><td colSpan={2} className="px-5 py-6 text-center text-slate-400">No students yet.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -161,35 +161,35 @@ export default function TeacherDashboard() {
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Create New Course">
         <form onSubmit={createCourse} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Title</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
             <input className="field" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="French for Beginners" />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Description</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Description</label>
             <textarea className="field min-h-20" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="What will students learn?" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Language</label>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Language</label>
               <select className="field" value={form.language_id} onChange={(e) => setForm({ ...form, language_id: e.target.value })}>
                 <option value="">Select…</option>
                 {languages.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Level</label>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Level</label>
               <select className="field" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })}>
                 {LEVELS.map((l) => <option key={l}>{l}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/50">Price (₹, 0 = free)</label>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Price (₹, 0 = free)</label>
             <input className="field" type="number" min="0" value={form.price_inr} onChange={(e) => setForm({ ...form, price_inr: e.target.value })} />
           </div>
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full">Create Course</button>
-          <p className="text-center text-xs text-white/35">Course starts as draft — add content, then publish from the builder.</p>
+          <p className="text-center text-xs text-slate-400">Course starts as draft — add content, then publish from the builder.</p>
         </form>
       </Modal>
     </div>

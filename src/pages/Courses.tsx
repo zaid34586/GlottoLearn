@@ -27,13 +27,13 @@ export default function Courses() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="font-display text-3xl font-bold text-white">All Courses</h1>
-      <p className="mt-1 text-white/50">Pick a language and start your journey.</p>
+      <h1 className="font-display text-3xl font-bold text-slate-900">All Courses</h1>
+      <p className="mt-1 text-slate-500">Pick a language and start your journey.</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <button
           onClick={() => setActiveLang(null)}
-          className={cn('rounded-full border px-4 py-1.5 text-sm font-semibold transition', !activeLang ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/60 hover:text-white')}
+          className={cn('rounded-full border px-4 py-1.5 text-sm font-semibold transition', !activeLang ? 'border-indigo-400/60 bg-indigo-500/20 text-slate-900' : 'border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-900')}
         >
           All
         </button>
@@ -41,7 +41,7 @@ export default function Courses() {
           <button
             key={l.id}
             onClick={() => setActiveLang(l.id)}
-            className={cn('rounded-full border px-4 py-1.5 text-sm font-semibold transition', activeLang === l.id ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/60 hover:text-white')}
+            className={cn('rounded-full border px-4 py-1.5 text-sm font-semibold transition', activeLang === l.id ? 'border-indigo-400/60 bg-indigo-500/20 text-slate-900' : 'border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-900')}
           >
             {l.name}
           </button>

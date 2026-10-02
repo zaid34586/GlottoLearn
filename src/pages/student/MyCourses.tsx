@@ -41,8 +41,8 @@ export default function MyCourses() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="font-display text-2xl font-bold text-white">My Courses</h1>
-      <p className="mt-1 text-sm text-white/50">Everything you're enrolled in.</p>
+      <h1 className="font-display text-2xl font-bold text-slate-900">My Courses</h1>
+      <p className="mt-1 text-sm text-slate-500">Everything you're enrolled in.</p>
       {enrollments.length === 0 ? (
         <div className="mt-8">
           <EmptyState
@@ -59,17 +59,17 @@ export default function MyCourses() {
             return (
               <Link key={e.id} to={`/learn/${e.course_id}`} className="glass glass-hover flex flex-col rounded-2xl p-5">
                 <div className="flex items-start justify-between">
-                  <h3 className="font-display line-clamp-2 font-bold text-white">{e.course?.title}</h3>
+                  <h3 className="font-display line-clamp-2 font-bold text-slate-900">{e.course?.title}</h3>
                   {pct === 100 && <Badge tone="green">DONE</Badge>}
                 </div>
-                <p className="mt-1 text-xs text-white/45">{e.course?.language?.name} · {e.course?.level} · enrolled {formatDateOnly(e.enrolled_at)}</p>
+                <p className="mt-1 text-xs text-slate-400">{e.course?.language?.name} · {e.course?.level} · enrolled {formatDateOnly(e.enrolled_at)}</p>
                 <div className="mt-4 flex-1">
-                  <div className="mb-1.5 flex justify-between text-xs text-white/50">
-                    <span>Progress</span><span className="font-semibold text-white">{pct}%</span>
+                  <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+                    <span>Progress</span><span className="font-semibold text-slate-900">{pct}%</span>
                   </div>
                   <Progress value={pct} />
                 </div>
-                <span className="mt-4 text-sm font-semibold text-indigo-300">Continue →</span>
+                <span className="mt-4 text-sm font-semibold text-indigo-600">Continue →</span>
               </Link>
             )
           })}

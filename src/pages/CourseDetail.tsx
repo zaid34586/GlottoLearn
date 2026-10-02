@@ -80,49 +80,49 @@ export default function CourseDetail() {
       {/* Language-themed hero strip */}
       <div className={`relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br ${t.gradient} p-8 md:p-10`}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        <span className="font-display absolute -bottom-6 right-6 select-none text-7xl font-black italic text-white/10 md:text-8xl">{t.greeting}</span>
+        <span className="font-display absolute -bottom-6 right-6 select-none text-7xl font-black italic text-slate-200 md:text-8xl">{t.greeting}</span>
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{t.flag} {t.word}</span>
-            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{course.level}</span>
-            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{formatINR(course.price_inr)}</span>
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-slate-900 backdrop-blur">{t.flag} {t.word}</span>
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-slate-900 backdrop-blur">{course.level}</span>
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-slate-900 backdrop-blur">{formatINR(course.price_inr)}</span>
           </div>
-          <h1 className="font-display mt-4 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl">{course.title}</h1>
+          <h1 className="font-display mt-4 max-w-2xl text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-5xl">{course.title}</h1>
         </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
         <div>
-          <p className="leading-relaxed text-white/60">{course.description || 'A complete guided course with live classes, recorded lessons, quizzes and materials.'}</p>
+          <p className="leading-relaxed text-slate-500">{course.description || 'A complete guided course with live classes, recorded lessons, quizzes and materials.'}</p>
 
           {course.teacher && (
             <div className="glass mt-6 flex items-center gap-4 rounded-2xl p-5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 font-bold text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 font-bold text-slate-900">
                 {course.teacher.full_name?.[0]?.toUpperCase() ?? 'T'}
               </div>
               <div>
-                <p className="font-semibold text-white">{course.teacher.full_name}</p>
-                <p className="text-sm text-white/45">Your teacher for this course</p>
+                <p className="font-semibold text-slate-900">{course.teacher.full_name}</p>
+                <p className="text-sm text-slate-400">Your teacher for this course</p>
               </div>
             </div>
           )}
 
           {/* Syllabus */}
-          <h2 className="font-display mt-8 text-xl font-bold text-white">What you'll learn</h2>
+          <h2 className="font-display mt-8 text-xl font-bold text-slate-900">What you'll learn</h2>
           <div className="mt-4 space-y-3">
-            {modules.length === 0 && <p className="text-sm text-white/40">Syllabus coming soon.</p>}
+            {modules.length === 0 && <p className="text-sm text-slate-400">Syllabus coming soon.</p>}
             {modules.map((pos) => {
               const rows = syllabus.filter((s) => s.module_position === pos)
               return (
                 <div key={pos} className="glass rounded-2xl p-5">
-                  <h3 className="font-display font-bold text-white">{rows[0].module_title}</h3>
+                  <h3 className="font-display font-bold text-slate-900">{rows[0].module_title}</h3>
                   <ul className="mt-2 space-y-1.5">
                     {rows.filter((r) => r.lesson_title).map((r) => (
-                      <li key={r.lesson_title} className="flex items-center gap-2 text-sm text-white/60">
-                        <span className="text-indigo-300">▸</span> {r.lesson_title}
+                      <li key={r.lesson_title} className="flex items-center gap-2 text-sm text-slate-500">
+                        <span className="text-indigo-600">▸</span> {r.lesson_title}
                       </li>
                     ))}
-                    {rows.every((r) => !r.lesson_title) && <li className="text-sm text-white/35">Lessons will be published soon.</li>}
+                    {rows.every((r) => !r.lesson_title) && <li className="text-sm text-slate-400">Lessons will be published soon.</li>}
                   </ul>
                 </div>
               )
@@ -132,13 +132,13 @@ export default function CourseDetail() {
           {/* Upcoming live classes */}
           {batches.length > 0 && (
             <>
-              <h2 className="font-display mt-8 text-xl font-bold text-white">Upcoming live classes</h2>
+              <h2 className="font-display mt-8 text-xl font-bold text-slate-900">Upcoming live classes</h2>
               <div className="mt-4 space-y-2">
                 {batches.map((b) => (
                   <div key={b.id} className="glass flex items-center justify-between rounded-xl px-5 py-3">
                     <div>
-                      <p className="text-sm font-semibold text-white">{b.title}</p>
-                      <p className="text-xs text-white/45">{formatDate(b.scheduled_at)} · {b.duration_min} min</p>
+                      <p className="text-sm font-semibold text-slate-900">{b.title}</p>
+                      <p className="text-xs text-slate-400">{formatDate(b.scheduled_at)} · {b.duration_min} min</p>
                     </div>
                     <Badge tone={b.status === 'live' ? 'green' : 'indigo'}>{b.status === 'live' ? '🔴 LIVE' : 'Scheduled'}</Badge>
                   </div>
@@ -157,12 +157,12 @@ export default function CourseDetail() {
               ) : (
                 <>
                   <span className="text-6xl drop-shadow-lg">{t.flag}</span>
-                  <span className="font-display absolute bottom-2 left-3 text-2xl font-black italic text-white/25">{t.greeting}</span>
+                  <span className="font-display absolute bottom-2 left-3 text-2xl font-black italic text-slate-300">{t.greeting}</span>
                 </>
               )}
             </div>
             <p className="font-display text-3xl font-extrabold text-gradient">{formatINR(course.price_inr)}</p>
-            <ul className="mt-4 space-y-2 text-sm text-white/60">
+            <ul className="mt-4 space-y-2 text-sm text-slate-500">
               <li>✓ Live classes inside the app</li>
               <li>✓ Recorded lessons, watch anytime</li>
               <li>✓ Quizzes with instant results</li>
@@ -177,9 +177,9 @@ export default function CourseDetail() {
               </button>
             )}
             {isDemoPayments && course.price_inr > 0 && (
-              <p className="mt-3 text-center text-[11px] text-amber-300/70">⚠ Demo payment mode — configure Razorpay keys for live checkout.</p>
+              <p className="mt-3 text-center text-[11px] text-amber-600">⚠ Demo payment mode — configure Razorpay keys for live checkout.</p>
             )}
-            {message && <p className="mt-3 text-center text-sm text-red-300">{message}</p>}
+            {message && <p className="mt-3 text-center text-sm text-red-600">{message}</p>}
           </div>
         </div>
       </div>

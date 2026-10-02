@@ -6,7 +6,7 @@ export function Spinner({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-indigo-400',
+        'h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-400',
         className,
       )}
     />
@@ -25,8 +25,8 @@ export function EmptyState({ icon, title, hint, action }: { icon: string; title:
   return (
     <div className="glass flex flex-col items-center gap-3 rounded-2xl px-6 py-14 text-center">
       <div className="text-4xl">{icon}</div>
-      <h3 className="font-display text-lg font-semibold text-white">{title}</h3>
-      {hint && <p className="max-w-sm text-sm text-white/50">{hint}</p>}
+      <h3 className="font-display text-lg font-semibold text-slate-900">{title}</h3>
+      {hint && <p className="max-w-sm text-sm text-slate-500">{hint}</p>}
       {action}
     </div>
   )
@@ -34,11 +34,11 @@ export function EmptyState({ icon, title, hint, action }: { icon: string; title:
 
 export function Badge({ children, tone = 'indigo' }: { children: ReactNode; tone?: 'indigo' | 'green' | 'amber' | 'red' | 'slate' }) {
   const tones: Record<string, string> = {
-    indigo: 'bg-indigo-500/15 text-indigo-300 border-indigo-400/30',
-    green: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/30',
-    amber: 'bg-amber-500/15 text-amber-300 border-amber-400/30',
-    red: 'bg-red-500/15 text-red-300 border-red-400/30',
-    slate: 'bg-white/8 text-white/60 border-white/15',
+    indigo: 'bg-indigo-500/15 text-indigo-600 border-indigo-400/30',
+    green: 'bg-emerald-500/15 text-emerald-600 border-emerald-400/30',
+    amber: 'bg-amber-500/15 text-amber-600 border-amber-400/30',
+    red: 'bg-red-500/15 text-red-600 border-red-400/30',
+    slate: 'bg-slate-100 text-slate-500 border-slate-200',
   }
   return (
     <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide', tones[tone])}>
@@ -51,11 +51,11 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
       <div className={cn('glass-strong relative w-full rounded-2xl p-6 shadow-2xl animate-fade-up', wide ? 'max-w-3xl' : 'max-w-md')}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-display text-lg font-bold text-white">{title}</h3>
-          <button onClick={onClose} className="rounded-lg px-2 py-1 text-white/50 hover:bg-white/10 hover:text-white">
+          <h3 className="font-display text-lg font-bold text-slate-900">{title}</h3>
+          <button onClick={onClose} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
             ✕
           </button>
         </div>
@@ -91,7 +91,7 @@ export function TiltCard({ children, className, style }: { children: ReactNode; 
 
 export function Progress({ value }: { value: number }) {
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
       <div
         className="h-full rounded-full transition-all"
         style={{
@@ -112,10 +112,10 @@ export function StatCard({ label, value, icon, accent }: { label: string; value:
       />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-white/45">{label}</p>
-          <p className="font-display mt-1 text-2xl font-bold text-white">{value}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+          <p className="font-display mt-1 text-2xl font-bold text-slate-900">{value}</p>
         </div>
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl text-lg', accent ?? 'bg-indigo-500/15 text-indigo-300')}>
+        <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl text-lg', accent ?? 'bg-indigo-500/15 text-indigo-600')}>
           {icon}
         </div>
       </div>

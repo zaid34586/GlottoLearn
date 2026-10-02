@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { CourseCard } from '../components/CourseCard'
@@ -6,69 +6,90 @@ import { supabase } from '../lib/supabase'
 import { greetings } from '../lib/langTheme'
 import type { Course } from '../lib/types'
 
-function Hero3D() {
-  const sceneRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function onMove(e: MouseEvent) {
-      const el = sceneRef.current
-      if (!el) return
-      const x = (e.clientX / window.innerWidth - 0.5) * 2
-      const y = (e.clientY / window.innerHeight - 0.5) * 2
-      el.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 10}deg)`
-    }
-    window.addEventListener('mousemove', onMove)
-    return () => window.removeEventListener('mousemove', onMove)
-  }, [])
+const FEATURES = [
+  { icon: '🎥', title: 'Live Classes In-App', body: 'Join real-time video classrooms with chat, screen share and raise-hand — no Zoom, no external apps.', bg: 'bg-teal-100 text-teal-600' },
+  { icon: '⏺️', title: 'Recorded Lessons', body: 'Every class gets recorded. Rewatch anytime, resume exactly where you left off.', bg: 'bg-sky-100 text-sky-600' },
+  { icon: '📝', title: 'Tests & Quizzes', body: 'Auto-graded quizzes, timed exams and instant results to track your mastery.', bg: 'bg-violet-100 text-violet-600' },
+  { icon: '📈', title: 'Progress Tracking', body: 'Lesson-by-lesson progress bars keep your learning streak alive and visible.', bg: 'bg-amber-100 text-amber-600' },
+  { icon: '📎', title: 'Study Materials', body: 'Notes, PDFs and worksheets from your teacher — always one click away.', bg: 'bg-rose-100 text-rose-600' },
+  { icon: '🎓', title: 'Expert Teachers', body: 'Learn from hand-picked teachers, verified and assigned by our team.', bg: 'bg-lime-100 text-lime-600' },
+]
 
+const STEPS = [
+  { n: '1', title: 'Choose your language', body: 'Browse courses across 8+ languages — Beginner to Mastery.', bg: 'bg-teal-500' },
+  { n: '2', title: 'Enroll in seconds', body: 'Secure checkout, instant access in My Learning.', bg: 'bg-sky-500' },
+  { n: '3', title: 'Learn live & recorded', body: 'Attend in-app live classes, rewatch recordings, download notes.', bg: 'bg-violet-500' },
+  { n: '4', title: 'Test & track mastery', body: 'Take quizzes, see instant scores, watch progress climb.', bg: 'bg-amber-500' },
+]
+
+const TESTIMONIALS = [
+  { name: 'Priya S.', emoji: '👩🏽', bg: 'bg-rose-100', text: 'The live classes feel like a real classroom — but I attend from home. The quiz results keep me motivated!' },
+  { name: 'Arjun M.', emoji: '🧑🏻', bg: 'bg-sky-100', text: 'I missed a live class once — the recording was right there in my course. Resumed exactly where I left off.' },
+  { name: 'Sana K.', emoji: '👩🏼', bg: 'bg-amber-100', text: 'Premium feel, simple to use. My German went from zero to conversational in 3 months.' },
+]
+
+/** Bright "live class" mock — colorful CSS illustration, no external images */
+function ClassMock() {
   return (
-    <div className="scene-3d relative mx-auto hidden h-80 w-full max-w-md md:block">
-      <div ref={sceneRef} className="word-3d relative h-full w-full transition-transform duration-200 ease-out">
-        {/* Globe */}
-        <div className="animate-floaty absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-500/50 via-violet-500/40 to-transparent shadow-[0_0_90px_-10px_rgba(99,102,241,0.8)]">
-          <div className="absolute inset-0 rounded-full border border-white/20" />
-          <div className="absolute inset-0 rounded-full border border-white/10 [transform:translateZ(30px)]" />
-          <div className="absolute inset-0 rounded-full border border-white/10 [transform:translateZ(-30px)]" />
+    <div className="relative">
+      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-indigo-500/10">
+        {/* window bar */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+            <span className="ml-3 text-xs font-extrabold text-slate-400">GlottoLearn · Live Class</span>
+          </div>
+          <span className="flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-extrabold text-rose-500">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" /> LIVE
+          </span>
         </div>
-        {/* Orbiting greetings — each in its language colour */}
-        {greetings.map((g, i) => {
-          const angle = (i / greetings.length) * Math.PI * 2
-          const rx = Math.cos(angle) * 130
-          const rz = Math.sin(angle) * 90
-          return (
-            <span
-              key={g.word}
-              className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border bg-white/5 px-3 py-1 text-sm font-semibold text-white/90 backdrop-blur"
-              style={{
-                borderColor: `${g.accent}55`,
-                boxShadow: `0 0 18px -6px ${g.accent}88`,
-                transform: `translate(calc(-50% + ${rx}px), calc(-50% + ${Math.sin(angle) * 40 - 60}px)) translateZ(${rz}px)`,
-                animation: `floaty ${5 + (i % 4)}s ease-in-out ${i * 0.4}s infinite`,
-              }}
-            >
-              {g.word}
-            </span>
-          )
-        })}
+        {/* participant tiles */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[
+            { e: '👩‍🏫', n: 'Teacher', bg: 'bg-amber-100' },
+            { e: '🧑🏻‍💻', n: 'Aarav', bg: 'bg-sky-100' },
+            { e: '👩🏽', n: 'Sana', bg: 'bg-rose-100' },
+            { e: '🧑🏿', n: 'John', bg: 'bg-emerald-100' },
+            { e: '👩🏼', n: 'Yuki', bg: 'bg-violet-100' },
+            { e: '🧑‍💻', n: 'You', bg: 'bg-teal-100' },
+          ].map((s) => (
+            <div key={s.n} className="rounded-2xl p-3 text-center" style={{ background: undefined }}>
+              <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full text-2xl ${s.bg}`}>
+                {s.e}
+              </div>
+              <p className="mt-1.5 text-[11px] font-extrabold text-slate-500">{s.n}</p>
+            </div>
+          ))}
+        </div>
+        {/* chat bubbles */}
+        <div className="mt-4 space-y-2">
+          <div className="w-fit rounded-2xl rounded-bl-md bg-slate-100 px-3.5 py-2 text-xs font-semibold text-slate-600">
+            <span className="mr-1.5 font-extrabold text-amber-600">Sana:</span> Bonjour! 😊
+          </div>
+          <div className="ml-auto w-fit rounded-2xl rounded-br-md bg-gradient-to-r from-teal-500 to-sky-500 px-3.5 py-2 text-xs font-bold text-white">
+            Je m'appelle Aarav ✓
+          </div>
+        </div>
+      </div>
+
+      {/* floating greeting chips */}
+      <div className="animate-floaty absolute -left-5 -top-5 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-lg">
+        🇫🇷 Bonjour!
+      </div>
+      <div className="animate-floaty absolute -right-4 top-16 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-lg" style={{ animationDelay: '1.2s' }}>
+        🇯🇵 こんにちは
+      </div>
+      <div className="animate-floaty absolute -bottom-5 left-8 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-lg" style={{ animationDelay: '2s' }}>
+        🇪🇸 ¡Hola!
+      </div>
+      <div className="animate-floaty absolute -bottom-4 right-10 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 shadow-lg" style={{ animationDelay: '2.8s' }}>
+        📝 Quiz: 9/10 🎉
       </div>
     </div>
   )
 }
-
-const FEATURES = [
-  { icon: '🎥', title: 'Live Classes In-App', body: 'Join real-time video classrooms with chat, screen share and raise-hand — no Zoom, no external apps.' },
-  { icon: '⏺️', title: 'Recorded Lessons', body: 'Every class gets recorded. Rewatch anytime with resume-where-you-left playback.' },
-  { icon: '📝', title: 'Tests & Quizzes', body: 'Auto-graded quizzes, timed exams and instant result analytics to track your mastery.' },
-  { icon: '📈', title: 'Progress Tracking', body: 'Lesson-by-lesson progress bars keep your learning streak alive and visible.' },
-  { icon: '📎', title: 'Study Materials', body: 'Notes, PDFs and worksheets from your teacher, always one click away.' },
-  { icon: '🎓', title: 'Expert Teachers', body: 'Learn from hand-picked language teachers assigned and verified by our team.' },
-]
-
-const STEPS = [
-  { n: '01', title: 'Choose your language', body: 'Browse courses across 8+ languages and levels — from Beginner to Mastery.' },
-  { n: '02', title: 'Enroll in seconds', body: 'Secure checkout and instant access. Your course appears in My Learning immediately.' },
-  { n: '03', title: 'Learn live & recorded', body: 'Attend live classes in-app, rewatch recordings, download materials.' },
-  { n: '04', title: 'Test & track mastery', body: 'Take quizzes, see instant results and watch your progress climb.' },
-]
 
 export default function Landing() {
   const { session, role } = useAuth()
@@ -90,19 +111,16 @@ export default function Landing() {
     <div>
       {/* ---------------- HERO ---------------- */}
       <section className="relative overflow-hidden">
-        <div className="glow-orb -left-32 top-10 h-96 w-96 bg-indigo-600/50" />
-        <div className="glow-orb -right-24 top-40 h-80 w-80 bg-fuchsia-600/40" />
-        <div className="glow-orb bottom-0 left-1/3 h-72 w-72 bg-amber-400/25" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 md:grid-cols-2 md:py-28">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 py-16 md:grid-cols-2 md:py-24">
           <div className="animate-fade-up">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-indigo-200 backdrop-blur">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-teal-50 px-4 py-1.5 text-xs font-extrabold text-teal-600 ring-1 ring-teal-200">
               ✦ Premium language learning, all-in-one
             </div>
-            <h1 className="font-display text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
+            <h1 className="font-display text-5xl font-bold leading-[1.06] text-slate-900 sm:text-6xl">
               Speak a new language with{' '}
-              <span className="text-gradient font-bold italic">confidence</span>
+              <span className="text-gradient">confidence</span>
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-white/60 sm:text-lg">
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-slate-500 sm:text-lg">
               Live classes, recorded lessons, quizzes and study material — everything happens inside GlottoLearn. No external apps. Just pure learning.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -111,27 +129,29 @@ export default function Landing() {
               </Link>
               <Link to="/courses" className="btn-ghost !px-7 !py-3 !text-base">Browse Courses</Link>
             </div>
-            <div className="mt-10 flex gap-8 text-sm">
+            <div className="mt-10 flex gap-10 text-sm">
               {[['8+', 'Languages'], ['100%', 'In-app classes'], ['24/7', 'Recorded access']].map(([v, l]) => (
                 <div key={l}>
-                  <p className="font-display text-2xl font-bold text-white">{v}</p>
-                  <p className="text-white/45">{l}</p>
+                  <p className="font-display text-3xl font-extrabold text-slate-900">{v}</p>
+                  <p className="font-semibold text-slate-400">{l}</p>
                 </div>
               ))}
             </div>
           </div>
-          <Hero3D />
+          <div className="animate-fade-up" style={{ animationDelay: '0.15s' }}>
+            <ClassMock />
+          </div>
         </div>
 
-        {/* Language marquee — colour-coded greetings */}
-        <div className="relative border-y border-white/10 py-5">
+        {/* Greeting marquee — color-coded chips */}
+        <div className="relative border-y border-slate-200 bg-white/70 py-5">
           <div className="flex overflow-hidden">
-            <div className="animate-marquee flex shrink-0 items-center gap-4 pr-4">
+            <div className="animate-marquee flex shrink-0 items-center gap-3 pr-3">
               {[...greetings, ...greetings].map((g, i) => (
                 <span
                   key={i}
-                  className="font-display whitespace-nowrap rounded-full border px-5 py-2 text-lg font-semibold"
-                  style={{ borderColor: `${g.accent}44`, color: g.accent, background: `${g.accent}0d` }}
+                  className="whitespace-nowrap rounded-full px-5 py-2 text-lg font-extrabold text-white"
+                  style={{ background: `linear-gradient(100deg, ${g.accent}, ${g.accent}cc)` }}
                 >
                   {g.word}
                 </span>
@@ -145,13 +165,13 @@ export default function Landing() {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <h2 className="font-display text-3xl font-bold text-white">Featured Courses</h2>
-            <p className="mt-1 text-white/50">Hand-crafted courses by our expert teachers.</p>
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-teal-600">Courses</p>
+            <h2 className="font-display mt-1 text-3xl font-bold text-slate-900">Featured Courses</h2>
           </div>
-          <Link to="/courses" className="text-sm font-semibold text-indigo-300 hover:text-indigo-200">View all →</Link>
+          <Link to="/courses" className="text-sm font-bold text-indigo-600 hover:text-indigo-500">View all →</Link>
         </div>
         {featured.length === 0 ? (
-          <div className="glass rounded-2xl p-10 text-center text-white/50">
+          <div className="glass rounded-3xl p-10 text-center text-sm font-semibold text-slate-400">
             Courses are being crafted. Check back soon!
           </div>
         ) : (
@@ -162,17 +182,20 @@ export default function Landing() {
       </section>
 
       {/* ---------------- FEATURES ---------------- */}
-      <section className="relative mx-auto max-w-6xl px-4 py-16">
-        <div className="glow-orb right-0 top-20 h-72 w-72 bg-violet-600/30" />
-        <h2 className="font-display mb-10 text-center text-3xl font-bold text-white">Everything you need, <span className="text-gradient">inside one platform</span></h2>
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <div className="mb-10 text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-indigo-600">Why GlottoLearn</p>
+          <h2 className="font-display mt-1 text-3xl font-bold text-slate-900">Everything inside one platform</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">Live classes, recordings, quizzes, materials — no external tools, ever.</p>
+        </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (
-            <div key={f.title} className="glass glass-hover rounded-2xl p-6">
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-fuchsia-500/20 text-xl">
+            <div key={f.title} className="glass glass-hover rounded-3xl p-6">
+              <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl text-2xl ${f.bg}`}>
                 {f.icon}
               </div>
-              <h3 className="font-display text-base font-bold text-white">{f.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-white/50">{f.body}</p>
+              <h3 className="font-display text-lg font-bold text-slate-900">{f.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{f.body}</p>
             </div>
           ))}
         </div>
@@ -180,13 +203,18 @@ export default function Landing() {
 
       {/* ---------------- HOW IT WORKS ---------------- */}
       <section id="how" className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-display mb-10 text-center text-3xl font-bold text-white">How it <span className="text-gradient">works</span></h2>
+        <div className="mb-10 text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-violet-600">Simple steps</p>
+          <h2 className="font-display mt-1 text-3xl font-bold text-slate-900">How it works</h2>
+        </div>
         <div className="grid gap-5 md:grid-cols-4">
-          {STEPS.map((s, i) => (
-            <div key={s.n} className="glass relative rounded-2xl p-6" style={{ animationDelay: `${i * 0.1}s` }}>
-              <span className="font-display text-4xl font-extrabold text-white/10">{s.n}</span>
-              <h3 className="font-display mt-2 text-base font-bold text-white">{s.title}</h3>
-              <p className="mt-1.5 text-sm text-white/50">{s.body}</p>
+          {STEPS.map((s) => (
+            <div key={s.n} className="glass glass-hover relative rounded-3xl p-6">
+              <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xl font-extrabold text-white ${s.bg}`}>
+                {s.n}
+              </span>
+              <h3 className="font-display mt-4 text-lg font-bold text-slate-900">{s.title}</h3>
+              <p className="mt-1.5 text-sm text-slate-500">{s.body}</p>
             </div>
           ))}
         </div>
@@ -194,17 +222,19 @@ export default function Landing() {
 
       {/* ---------------- TESTIMONIALS ---------------- */}
       <section id="testimonials" className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-display mb-10 text-center text-3xl font-bold text-white">Loved by <span className="text-gradient">learners</span></h2>
+        <div className="mb-10 text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-rose-500">Testimonials</p>
+          <h2 className="font-display mt-1 text-3xl font-bold text-slate-900">Loved by learners</h2>
+        </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {[
-            { name: 'Priya S.', text: 'The live classes feel like a real classroom — but I attend from home. The quiz results keep me motivated!' },
-            { name: 'Arjun M.', text: 'I missed a live class once, the recording was right there in my course. Resumed exactly where I left off.' },
-            { name: 'Sana K.', text: 'Premium feel, simple to use. My German went from zero to conversational in 3 months.' },
-          ].map((t) => (
-            <div key={t.name} className="glass glass-hover rounded-2xl p-6">
-              <p className="text-amber-300">★★★★★</p>
-              <p className="mt-3 text-sm leading-relaxed text-white/70">"{t.text}"</p>
-              <p className="font-display mt-4 text-sm font-bold text-white">{t.name}</p>
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="glass glass-hover rounded-3xl p-6">
+              <p className="text-amber-500">★★★★★</p>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">"{t.text}"</p>
+              <div className="mt-5 flex items-center gap-3">
+                <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl ${t.bg}`}>{t.emoji}</span>
+                <p className="font-display text-sm font-bold text-slate-900">{t.name}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -212,12 +242,15 @@ export default function Landing() {
 
       {/* ---------------- CTA ---------------- */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="glass-strong relative overflow-hidden rounded-3xl p-10 text-center">
-          <div className="glow-orb left-10 top-0 h-56 w-56 bg-indigo-500/40" />
-          <div className="glow-orb bottom-0 right-10 h-56 w-56 bg-amber-400/30" />
-          <h2 className="font-display relative text-3xl font-bold text-white">Ready to start speaking?</h2>
-          <p className="relative mx-auto mt-3 max-w-md text-white/60">Join GlottoLearn today. Your first lesson is closer than you think.</p>
-          <Link to={dash} className="btn-primary relative mt-7 !px-8 !py-3 !text-base">Get Started →</Link>
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-teal-500 via-indigo-500 to-fuchsia-500 p-10 text-center shadow-2xl shadow-indigo-500/30 md:p-14">
+          <span className="font-display absolute left-6 top-6 text-2xl font-extrabold text-white/25">Bonjour</span>
+          <span className="font-display absolute right-8 top-10 text-2xl font-extrabold text-white/25">Hola</span>
+          <span className="font-display absolute bottom-6 left-12 text-2xl font-extrabold text-white/25">こんにちは</span>
+          <h2 className="font-display relative text-3xl font-bold text-white md:text-4xl">Ready to start speaking?</h2>
+          <p className="relative mx-auto mt-3 max-w-md text-white/85">Join GlottoLearn today. Your first lesson is closer than you think.</p>
+          <Link to={dash} className="relative mt-7 inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-extrabold text-indigo-600 shadow-xl transition hover:-translate-y-0.5 hover:shadow-2xl">
+            Get Started →
+          </Link>
         </div>
       </section>
     </div>
