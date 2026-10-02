@@ -69,12 +69,22 @@ export default function TeacherDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-white">Teacher Dashboard</h1>
-          <p className="mt-1 text-sm text-white/50">Manage your courses, classes and students.</p>
+      {/* Role-themed welcome banner */}
+      <div className="glass relative overflow-hidden rounded-3xl p-6 md:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-30 blur-3xl" style={{ background: 'var(--role-accent, #fbbf24)' }} />
+        <div className="pointer-events-none absolute -bottom-20 left-1/4 h-44 w-44 rounded-full opacity-20 blur-3xl" style={{ background: 'var(--role-accent-2, #fb923c)' }} />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: 'var(--role-accent, #fbbf24)' }}>
+              Teacher · Studio
+            </p>
+            <h1 className="font-display mt-2 text-3xl font-semibold text-white md:text-4xl">
+              Welcome, <span className="text-gradient italic">{profile?.full_name?.split(' ')[0]}</span>
+            </h1>
+            <p className="mt-2 text-sm text-white/50">Build courses, schedule classes and inspire your students.</p>
+          </div>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>+ New Course</button>
         </div>
-        <button className="btn-primary" onClick={() => setShowCreate(true)}>+ New Course</button>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

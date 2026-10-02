@@ -94,11 +94,12 @@ export function AppLayout() {
   const navigate = useNavigate()
   const nav = role ? navByRole[role] : []
   return (
-    <div className="flex min-h-screen">
+    <div className={cn('flex min-h-screen', role && `theme-${role}`)}>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-white/10 bg-[#0a0a18]/90 backdrop-blur-xl md:flex">
         <div className="flex h-16 items-center px-5">
           <Logo />
         </div>
+        <div className="mx-5 mt-1 h-px" style={{ background: 'linear-gradient(90deg, var(--role-accent, transparent), transparent)' }} />
         <nav className="mt-2 flex-1 space-y-1 px-3">
           {nav.map((n) => (
             <NavLink
@@ -106,9 +107,14 @@ export function AppLayout() {
               to={n.to}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 transition',
-                  isActive ? 'bg-indigo-500/15 text-white shadow-inner' : 'hover:bg-white/5 hover:text-white',
+                  'relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white',
+                  isActive && 'text-white',
                 )
+              }
+              style={({ isActive }: { isActive: boolean }) =>
+                isActive
+                  ? { background: 'var(--role-accent-soft)', boxShadow: 'inset 3px 0 0 var(--role-accent)' }
+                  : undefined
               }
             >
               <span>{n.icon}</span>
@@ -118,7 +124,10 @@ export function AppLayout() {
         </nav>
         <div className="border-t border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-sm font-bold text-white">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-[#0a0a14]"
+              style={{ background: 'linear-gradient(135deg, var(--role-accent, #6366f1), var(--role-accent-2, #d946ef))' }}
+            >
               {profile?.full_name?.[0]?.toUpperCase() ?? '?'}
             </div>
             <div className="min-w-0 flex-1">

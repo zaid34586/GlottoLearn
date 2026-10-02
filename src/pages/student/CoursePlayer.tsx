@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { Progress, Badge, PageLoader, EmptyState } from '../../components/ui'
 import { formatDuration } from '../../lib/utils'
-import { langFlag } from '../../components/CourseCard'
+import { getLangTheme } from '../../lib/langTheme'
 import type { Course, Module, Lesson, Material, Recording, Quiz, LessonProgress, QuizAttempt, Batch } from '../../lib/types'
 import { cn, formatDate } from '../../lib/utils'
 
@@ -95,34 +95,39 @@ export default function CoursePlayer() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* Header */}
-      <div className="glass rounded-2xl p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="font-display text-xl font-bold text-white">{course.title}</h1>
-            <p className="mt-0.5 text-sm text-white/45">
-              {course.language ? `${langFlag(course.language.code)} ${course.language.name} · ` : ''}{course.level} · Teacher: {course.teacher?.full_name ?? '—'}
-            </p>
+      {/* Language-themed header */}
+      <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${getLangTheme(course.language).gradient} p-1`}>
+        <div className="glass-strong relative rounded-[calc(1.5rem-4px)] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{getLangTheme(course.language).flag}</span>
+                <h1 className="font-display text-xl font-bold text-white">{course.title}</h1>
+              </div>
+              <p className="mt-0.5 text-sm text-white/45">
+                {course.language ? `${course.language.name} · ` : ''}{course.level} · Teacher: {course.teacher?.full_name ?? '—'}
+              </p>
+            </div>
+            <div className="w-48">
+              <div className="mb-1 flex justify-between text-xs text-white/50"><span>Progress</span><span className="font-semibold text-white">{pct}%</span></div>
+              <Progress value={pct} />
+            </div>
           </div>
-          <div className="w-48">
-            <div className="mb-1 flex justify-between text-xs text-white/50"><span>Progress</span><span className="font-semibold text-white">{pct}%</span></div>
-            <Progress value={pct} />
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  'whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition',
+                  tab === t.id ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/55 hover:text-white',
+                )}
+              >
+                {t.icon} {t.label}
+                {t.id === 'quizzes' && ` (${quizzes.length})`}
+              </button>
+            ))}
           </div>
-        </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                'whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition',
-                tab === t.id ? 'border-indigo-400/60 bg-indigo-500/20 text-white' : 'border-white/15 bg-white/5 text-white/55 hover:text-white',
-              )}
-            >
-              {t.icon} {t.label}
-              {t.id === 'quizzes' && ` (${quizzes.length})`}
-            </button>
-          ))}
         </div>
       </div>
 

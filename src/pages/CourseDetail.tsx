@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { Badge, PageLoader, EmptyState } from '../components/ui'
 import { formatINR, formatDate } from '../lib/utils'
 import { startCheckout, isDemoPayments } from '../lib/payments'
-import { langFlag } from '../components/CourseCard'
+import { getLangTheme } from '../lib/langTheme'
 import type { Course, Batch } from '../lib/types'
 
 interface SyllabusRow { module_title: string; module_position: number; lesson_title: string | null; lesson_position: number | null }
@@ -73,18 +73,27 @@ export default function CourseDetail() {
   if (!course) return <div className="mx-auto max-w-6xl px-4 py-16"><EmptyState icon="🫥" title="Course not found" action={<Link to="/courses" className="btn-ghost mt-2">Back to courses</Link>} /></div>
 
   const modules = Array.from(new Set(syllabus.map((s) => s.module_position)))
+  const t = getLangTheme(course.language)
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
+      {/* Language-themed hero strip */}
+      <div className={`relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br ${t.gradient} p-8 md:p-10`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <span className="font-display absolute -bottom-6 right-6 select-none text-7xl font-black italic text-white/10 md:text-8xl">{t.greeting}</span>
+        <div className="relative">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{t.flag} {t.word}</span>
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{course.level}</span>
+            <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-white backdrop-blur">{formatINR(course.price_inr)}</span>
+          </div>
+          <h1 className="font-display mt-4 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl">{course.title}</h1>
+        </div>
+      </div>
+
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="indigo">{course.level}</Badge>
-            {course.language && <Badge tone="slate">{langFlag(course.language.code)} {course.language.name}</Badge>}
-            <Badge tone={course.price_inr === 0 ? 'green' : 'amber'}>{formatINR(course.price_inr)}</Badge>
-          </div>
-          <h1 className="font-display mt-3 text-3xl font-bold text-white sm:text-4xl">{course.title}</h1>
-          <p className="mt-3 leading-relaxed text-white/60">{course.description || 'A complete guided course with live classes, recorded lessons, quizzes and materials.'}</p>
+          <p className="leading-relaxed text-white/60">{course.description || 'A complete guided course with live classes, recorded lessons, quizzes and materials.'}</p>
 
           {course.teacher && (
             <div className="glass mt-6 flex items-center gap-4 rounded-2xl p-5">
@@ -142,11 +151,14 @@ export default function CourseDetail() {
         {/* Purchase card */}
         <div className="lg:sticky lg:top-24 lg:self-start">
           <div className="glass-strong rounded-2xl p-6">
-            <div className="relative mb-4 h-40 overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600/40 via-violet-600/30 to-amber-400/20">
+            <div className={`relative mb-4 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${t.gradient}`}>
               {course.cover_url ? (
                 <img src={course.cover_url} alt={course.title} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center text-6xl">{course.language ? langFlag(course.language.code) : '🌍'}</div>
+                <>
+                  <span className="text-6xl drop-shadow-lg">{t.flag}</span>
+                  <span className="font-display absolute bottom-2 left-3 text-2xl font-black italic text-white/25">{t.greeting}</span>
+                </>
               )}
             </div>
             <p className="font-display text-3xl font-extrabold text-gradient">{formatINR(course.price_inr)}</p>

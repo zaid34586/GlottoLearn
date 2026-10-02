@@ -49,12 +49,22 @@ export default function StudentDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-white">Hi {profile?.full_name?.split(' ')[0]} 👋</h1>
-          <p className="mt-1 text-sm text-white/50">Your learning at a glance.</p>
+      {/* Role-themed welcome banner */}
+      <div className="glass relative overflow-hidden rounded-3xl p-6 md:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-30 blur-3xl" style={{ background: 'var(--role-accent, #2dd4bf)' }} />
+        <div className="pointer-events-none absolute -bottom-20 left-1/4 h-44 w-44 rounded-full opacity-20 blur-3xl" style={{ background: 'var(--role-accent-2, #38bdf8)' }} />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: 'var(--role-accent, #2dd4bf)' }}>
+              Student · Learning Studio
+            </p>
+            <h1 className="font-display mt-2 text-3xl font-semibold text-white md:text-4xl">
+              Hi {profile?.full_name?.split(' ')[0]}, ready to <span className="text-gradient italic">practice</span>?
+            </h1>
+            <p className="mt-2 text-sm text-white/50">Your courses, classes and progress — all in one place.</p>
+          </div>
+          <Link to="/courses" className="btn-primary">+ Explore Courses</Link>
         </div>
-        <Link to="/courses" className="btn-ghost">+ Explore Courses</Link>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

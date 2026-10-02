@@ -93,8 +93,11 @@ export function Progress({ value }: { value: number }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
       <div
-        className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 transition-all"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+        className="h-full rounded-full transition-all"
+        style={{
+          width: `${Math.min(100, Math.max(0, value))}%`,
+          background: 'linear-gradient(90deg, var(--role-accent, #6366f1), var(--role-accent-2, #d946ef))',
+        }}
       />
     </div>
   )
@@ -102,8 +105,12 @@ export function Progress({ value }: { value: number }) {
 
 export function StatCard({ label, value, icon, accent }: { label: string; value: ReactNode; icon: string; accent?: string }) {
   return (
-    <div className="glass rounded-2xl p-5">
-      <div className="flex items-start justify-between">
+    <div className="glass relative overflow-hidden rounded-2xl p-5">
+      <div
+        className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-25 blur-2xl"
+        style={{ background: 'var(--role-accent, #6366f1)' }}
+      />
+      <div className="relative flex items-start justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-white/45">{label}</p>
           <p className="font-display mt-1 text-2xl font-bold text-white">{value}</p>

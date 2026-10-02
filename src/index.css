@@ -1,13 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Sora:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-ink: #07070f;
-  --color-ink-2: #0d0d1c;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #06060d;
+  --color-ink-2: #0c0c1a;
   --color-glass: rgba(255, 255, 255, 0.06);
   --color-glass-border: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Role themes (applied on AppLayout wrapper) ---------- */
+.theme-student {
+  --role-accent: #2dd4bf;
+  --role-accent-2: #38bdf8;
+  --role-accent-soft: rgba(45, 212, 191, 0.14);
+  --role-glow: rgba(45, 212, 191, 0.35);
+}
+.theme-teacher {
+  --role-accent: #fbbf24;
+  --role-accent-2: #fb923c;
+  --role-accent-soft: rgba(251, 191, 36, 0.14);
+  --role-glow: rgba(251, 191, 36, 0.35);
+}
+.theme-admin {
+  --role-accent: #fb7185;
+  --role-accent-2: #e879f9;
+  --role-accent-soft: rgba(251, 113, 133, 0.14);
+  --role-glow: rgba(251, 113, 133, 0.35);
 }
 
 html {
@@ -17,24 +37,53 @@ html {
 body {
   font-family: var(--font-body);
   background: var(--color-ink);
-  color: #e7e7f2;
+  color: #ececf6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Film grain + deep-space backdrop */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(99, 102, 241, 0.14), transparent 60%),
+    radial-gradient(900px 500px at -10% 40%, rgba(217, 70, 239, 0.08), transparent 60%),
+    radial-gradient(700px 500px at 50% 110%, rgba(251, 191, 36, 0.07), transparent 60%);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 .font-display {
   font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
 }
 
 /* ---------- Glass surfaces ---------- */
 .glass {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.028));
   border: 1px solid var(--color-glass-border);
   backdrop-filter: blur(14px);
 }
 
 .glass-strong {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px);
 }
 
@@ -43,8 +92,8 @@ body {
 }
 .glass-hover:hover {
   transform: translateY(-6px);
-  border-color: rgba(129, 140, 248, 0.5);
-  box-shadow: 0 24px 60px -18px rgba(99, 102, 241, 0.45);
+  border-color: color-mix(in srgb, var(--role-accent, #818cf8) 55%, transparent);
+  box-shadow: 0 24px 60px -18px var(--role-glow, rgba(99, 102, 241, 0.45));
 }
 
 /* 3D tilt card */
@@ -58,10 +107,17 @@ body {
 
 /* ---------- Gradients & glow ---------- */
 .text-gradient {
-  background: linear-gradient(100deg, #a5b4fc 0%, #f0abfc 45%, #fcd34d 100%);
+  background: linear-gradient(100deg, #c7d2fe 0%, #f0abfc 45%, #fcd34d 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.role-accent {
+  color: var(--role-accent, #818cf8);
+}
+.role-gradient-bg {
+  background: linear-gradient(100deg, var(--role-accent, #6366f1), var(--role-accent-2, #8b5cf6));
 }
 
 .glow-orb {
@@ -116,7 +172,7 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #0d0d1c; }
+::-webkit-scrollbar-track { background: #0c0c1a; }
 ::-webkit-scrollbar-thumb { background: #2c2c48; border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: #3d3d63; }
 
@@ -128,13 +184,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
-  color: #e7e7f2;
+  color: #ececf6;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .field:focus {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+  border-color: var(--role-accent, #818cf8);
+  box-shadow: 0 0 0 3px var(--role-accent-soft, rgba(129, 140, 248, 0.2));
 }
 .field::placeholder { color: #6b6b85; }
 select.field option { background: #14142a; }
@@ -146,15 +202,15 @@ select.field option { background: #14142a; }
   justify-content: center;
   gap: 0.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(100deg, #6366f1, #8b5cf6 55%, #d946ef);
+  background: linear-gradient(100deg, var(--role-accent, #6366f1), var(--role-accent-2, #d946ef));
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: white;
-  box-shadow: 0 10px 30px -8px rgba(99, 102, 241, 0.6);
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  color: #0a0a14;
+  box-shadow: 0 10px 30px -8px var(--role-glow, rgba(99, 102, 241, 0.6));
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s, filter 0.2s;
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -8px rgba(139, 92, 246, 0.7); }
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 16px 40px -8px var(--role-glow, rgba(139, 92, 246, 0.7)); }
 .btn-primary:disabled { opacity: 0.55; transform: none; cursor: not-allowed; }
 
 .btn-ghost {
@@ -168,10 +224,13 @@ select.field option { background: #14142a; }
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #e7e7f2;
+  color: #ececf6;
   transition: border-color 0.2s, background 0.2s;
 }
-.btn-ghost:hover { border-color: rgba(129, 140, 248, 0.6); background: rgba(255, 255, 255, 0.08); }
+.btn-ghost:hover {
+  border-color: color-mix(in srgb, var(--role-accent, #818cf8) 55%, transparent);
+  background: rgba(255, 255, 255, 0.08);
+}
 .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-danger {

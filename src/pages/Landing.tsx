@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { CourseCard } from '../components/CourseCard'
 import { supabase } from '../lib/supabase'
+import { greetings } from '../lib/langTheme'
 import type { Course } from '../lib/types'
-
-const FLOAT_WORDS = ['Hello', 'Bonjour', 'Hola', 'こんにちは', '안녕하세요', 'Ciao', 'Hallo', 'مرحبا', 'नमस्ते', '你好']
 
 function Hero3D() {
   const sceneRef = useRef<HTMLDivElement>(null)
@@ -22,26 +21,31 @@ function Hero3D() {
   }, [])
 
   return (
-    <div className="scene-3d relative mx-auto hidden h-72 w-full max-w-md md:block">
+    <div className="scene-3d relative mx-auto hidden h-80 w-full max-w-md md:block">
       <div ref={sceneRef} className="word-3d relative h-full w-full transition-transform duration-200 ease-out">
         {/* Globe */}
-        <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-500/50 via-violet-500/40 to-transparent shadow-[0_0_90px_-10px_rgba(99,102,241,0.8)] animate-floaty">
+        <div className="animate-floaty absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-500/50 via-violet-500/40 to-transparent shadow-[0_0_90px_-10px_rgba(99,102,241,0.8)]">
           <div className="absolute inset-0 rounded-full border border-white/20" />
           <div className="absolute inset-0 rounded-full border border-white/10 [transform:translateZ(30px)]" />
           <div className="absolute inset-0 rounded-full border border-white/10 [transform:translateZ(-30px)]" />
         </div>
-        {/* Orbiting words */}
-        {FLOAT_WORDS.map((w, i) => {
-          const angle = (i / FLOAT_WORDS.length) * Math.PI * 2
+        {/* Orbiting greetings — each in its language colour */}
+        {greetings.map((g, i) => {
+          const angle = (i / greetings.length) * Math.PI * 2
           const rx = Math.cos(angle) * 130
           const rz = Math.sin(angle) * 90
           return (
             <span
-              key={w}
-              className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-semibold text-white/85 backdrop-blur"
-              style={{ transform: `translate(calc(-50% + ${rx}px), calc(-50% + ${Math.sin(angle) * 40 - 60}px)) translateZ(${rz}px)`, animation: `floaty ${5 + (i % 4)}s ease-in-out ${i * 0.4}s infinite` }}
+              key={g.word}
+              className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border bg-white/5 px-3 py-1 text-sm font-semibold text-white/90 backdrop-blur"
+              style={{
+                borderColor: `${g.accent}55`,
+                boxShadow: `0 0 18px -6px ${g.accent}88`,
+                transform: `translate(calc(-50% + ${rx}px), calc(-50% + ${Math.sin(angle) * 40 - 60}px)) translateZ(${rz}px)`,
+                animation: `floaty ${5 + (i % 4)}s ease-in-out ${i * 0.4}s infinite`,
+              }}
             >
-              {w}
+              {g.word}
             </span>
           )
         })}
@@ -94,8 +98,9 @@ export default function Landing() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-indigo-200 backdrop-blur">
               ✦ Premium language learning, all-in-one
             </div>
-            <h1 className="font-display text-4xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl">
-              Speak a new language with <span className="text-gradient">confidence</span>
+            <h1 className="font-display text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
+              Speak a new language with{' '}
+              <span className="text-gradient font-bold italic">confidence</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-white/60 sm:text-lg">
               Live classes, recorded lessons, quizzes and study material — everything happens inside GlottoLearn. No external apps. Just pure learning.
@@ -118,12 +123,18 @@ export default function Landing() {
           <Hero3D />
         </div>
 
-        {/* Language marquee */}
-        <div className="relative border-y border-white/10 py-4">
+        {/* Language marquee — colour-coded greetings */}
+        <div className="relative border-y border-white/10 py-5">
           <div className="flex overflow-hidden">
-            <div className="animate-marquee flex shrink-0 items-center gap-10 pr-10 text-white/35">
-              {[...FLOAT_WORDS, ...FLOAT_WORDS].map((w, i) => (
-                <span key={i} className="font-display text-lg font-bold whitespace-nowrap">{w}</span>
+            <div className="animate-marquee flex shrink-0 items-center gap-4 pr-4">
+              {[...greetings, ...greetings].map((g, i) => (
+                <span
+                  key={i}
+                  className="font-display whitespace-nowrap rounded-full border px-5 py-2 text-lg font-semibold"
+                  style={{ borderColor: `${g.accent}44`, color: g.accent, background: `${g.accent}0d` }}
+                >
+                  {g.word}
+                </span>
               ))}
             </div>
           </div>
