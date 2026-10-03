@@ -66,7 +66,6 @@ export function PublicLayout() {
         <div className="mx-auto mt-6 flex max-w-6xl flex-wrap items-center justify-center gap-5 border-t border-slate-100 px-4 pt-5 text-xs font-semibold text-slate-400">
           <span>© {new Date().getFullYear()} GlottoLearn</span>
           <span className="text-slate-200">|</span>
-          <Link to="/teacher/login" className="transition hover:text-amber-600">🎓 Teacher Portal</Link>
           <Link to="/admin/login" className="transition hover:text-rose-600">🔐 Admin Portal</Link>
         </div>
       </footer>

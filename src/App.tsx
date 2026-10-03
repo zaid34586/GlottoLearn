@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { PublicLayout, AppLayout } from './components/Layout'
-import { RequireAuth, RequireRole, RequireAdmin, RequireTeacher } from './components/Guards'
+import { RequireAuth, RequireRole, RequireAdmin } from './components/Guards'
 
 import Landing from './pages/Landing'
 import Courses from './pages/Courses'
@@ -17,7 +17,6 @@ import LiveClasses from './pages/student/LiveClasses'
 import QuizTake from './pages/student/QuizTake'
 import QuizResult from './pages/student/QuizResult'
 
-import TeacherLogin from './pages/teacher/TeacherLogin'
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
 import TeacherBatches from './pages/teacher/TeacherBatches'
 import CourseBuilder from './pages/teacher/CourseBuilder'
@@ -60,9 +59,8 @@ export default function App() {
             <Route path="/quiz-result/:attemptId" element={<QuizResult />} />
           </Route>
 
-          {/* Teacher portal — separate URL and login; admins can also manage content */}
-          <Route path="/teacher/login" element={<TeacherLogin />} />
-          <Route element={<RequireTeacher><AppLayout /></RequireTeacher>}>
+          {/* Teaching studio — admin manages content (teacher program aayega baad me, payments ke baad) */}
+          <Route element={<RequireRole roles={['teacher', 'admin']}><AppLayout /></RequireRole>}>
             <Route path="/teach" element={<TeacherDashboard />} />
             <Route path="/teach/courses/:courseId" element={<CourseBuilder />} />
             <Route path="/teach/batches" element={<TeacherBatches />} />
