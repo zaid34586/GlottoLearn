@@ -21,7 +21,7 @@ export default function Login() {
       setBusy(false)
       return setError(err)
     }
-    // Admins must use the dedicated admin portal
+    // Admins and teachers use their dedicated portals
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
@@ -29,6 +29,11 @@ export default function Login() {
         await signOut()
         setBusy(false)
         return setError('Admin accounts sign in from the Admin Portal — use the button below.')
+      }
+      if (profile?.role === 'teacher') {
+        await signOut()
+        setBusy(false)
+        return setError('Teacher accounts sign in from the Teacher Portal — use the button below.')
       }
     }
     setBusy(false)
@@ -56,6 +61,11 @@ export default function Login() {
               {error.includes('Admin Portal') && (
                 <Link to="/admin/login" className="mt-2 block text-center text-sm font-bold text-rose-600 hover:underline">
                   Go to Admin Portal →
+                </Link>
+              )}
+              {error.includes('Teacher Portal') && (
+                <Link to="/teacher/login" className="mt-2 block text-center text-sm font-bold text-amber-600 hover:underline">
+                  Go to Teacher Portal →
                 </Link>
               )}
             </div>

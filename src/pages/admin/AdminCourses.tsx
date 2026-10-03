@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { PageLoader, EmptyState, Badge, Modal } from '../../components/ui'
 import { formatINR, LEVELS } from '../../lib/utils'
@@ -96,7 +97,8 @@ export default function AdminCourses() {
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Price (₹)</label>
                 <input className="field !py-2" type="number" min="0" defaultValue={c.price_inr} onBlur={(e) => setPrice(c, e.target.value)} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Link to={`/teach/courses/${c.id}`} className="btn-ghost !py-2" title="Upload lessons, modules and quizzes">📦 Content</Link>
                 {c.status === 'published' ? (
                   <button className="btn-ghost !py-2" onClick={() => setStatus(c, 'draft')}>Unpublish</button>
                 ) : (

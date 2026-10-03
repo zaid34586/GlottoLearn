@@ -63,6 +63,13 @@ export function PublicLayout() {
           <Logo />
           <p>© {new Date().getFullYear()} GlottoLearn. Learn any language, live & on your schedule.</p>
         </div>
+        <div className="mx-auto mt-6 flex max-w-6xl flex-wrap items-center justify-center gap-5 border-t border-slate-100 px-4 pt-5 text-xs font-semibold text-slate-400">
+          <Link to="/privacy" className="transition hover:text-slate-700">Privacy</Link>
+          <Link to="/terms" className="transition hover:text-slate-700">Terms</Link>
+          <span className="text-slate-200">|</span>
+          <Link to="/teacher/login" className="transition hover:text-amber-600">🎓 Teacher Portal</Link>
+          <Link to="/admin/login" className="transition hover:text-rose-600">🔐 Admin Portal</Link>
+        </div>
       </footer>
     </div>
   )
@@ -85,6 +92,7 @@ const navByRole: Record<Role, { to: string; label: string; icon: string }[]> = {
     { to: '/admin/courses', label: 'Courses', icon: '📚' },
     { to: '/admin/people', label: 'People', icon: '👥' },
     { to: '/admin/payments', label: 'Payments', icon: '💳' },
+    { to: '/teach', label: 'Teaching Studio', icon: '🎓' },
     { to: '/profile', label: 'Profile', icon: '👤' },
   ],
 }
