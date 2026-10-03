@@ -141,6 +141,7 @@ export default function CourseBuilder() {
       description: String(fd.get('description') ?? ''),
       time_limit_min: Number(fd.get('time_limit_min') ?? 0) || 0,
       is_graded: fd.get('is_graded') === 'on',
+      week_no: Number(fd.get('week_no')) || null,
       created_by: profile!.id,
     }).select('id').single()
     if (!error && data) setQuizBuilderId(data.id)
@@ -250,10 +251,14 @@ export default function CourseBuilder() {
               <EmptyState icon="📝" title="No tests yet" hint="Create practice quizzes or graded exams with auto-scoring." />
             ) : (
               <div className="space-y-3">
-                {quizzes.map((q) => (
+                {quizzes
+                  .slice()
+                  .sort((a, b) => (a.week_no ?? 999) - (b.week_no ?? 999))
+                  .map((q) => (
                   <div key={q.id} className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-5 py-4">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {q.week_no != null && <Badge tone="indigo">WEEK {q.week_no}</Badge>}
                         <p className="font-semibold text-slate-900">{q.title}</p>
                         <Badge tone={q.is_graded ? 'amber' : 'green'}>{q.is_graded ? 'GRADED' : 'PRACTICE'}</Badge>
                         {q.time_limit_min > 0 && <Badge tone="slate">{q.time_limit_min} MIN</Badge>}
@@ -372,10 +377,11 @@ export default function CourseBuilder() {
 
       <Modal open={showQuiz} onClose={() => setShowQuiz(false)} title="Create Test">
         <form onSubmit={createQuiz} className="space-y-4">
-          <input className="field" name="title" required placeholder="Test title" />
+          <input className="field" name="title" required placeholder="Test title (e.g. Week 1 Test — Greetings)" />
           <textarea className="field min-h-16" name="description" placeholder="Instructions for students (optional)" />
-          <div className="grid grid-cols-2 gap-3">
-            <input className="field" name="time_limit_min" type="number" min="0" placeholder="Time limit (min, 0 = none)" />
+          <div className="grid grid-cols-3 gap-3">
+            <input className="field" name="week_no" type="number" min="1" placeholder="Week no." />
+            <input className="field" name="time_limit_min" type="number" min="0" placeholder="Time limit (min)" />
             <label className="flex items-center gap-2 text-sm text-slate-600">
               <input type="checkbox" name="is_graded" className="accent-indigo-500" /> Graded exam
             </label>

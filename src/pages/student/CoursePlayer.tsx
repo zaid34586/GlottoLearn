@@ -215,9 +215,26 @@ export default function CoursePlayer() {
           )}
 
           {tab === 'recordings' && (
-            recordings.length === 0 ? <EmptyState icon="⏺️" title="No recordings yet" hint="Live class recordings will appear here automatically." /> : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {recordings.map((r) => <RecordingCard key={r.id} rec={r} />)}
+            recordings.length === 0 ? <EmptyState icon="⏺️" title="No recordings yet" hint="Recorded lessons will appear here." /> : (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-display mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">Recorded Lessons (course-wide)</h3>
+                  {recordings.filter((r) => !r.batch_id).length === 0 ? (
+                    <p className="text-sm text-slate-400">No standalone recordings yet.</p>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {recordings.filter((r) => !r.batch_id).map((r) => <RecordingCard key={r.id} rec={r} />)}
+                    </div>
+                  )}
+                </div>
+                {recordings.some((r) => r.batch_id) && (
+                  <div>
+                    <h3 className="font-display mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">🔴 Live Class Replays (your batch only)</h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {recordings.filter((r) => r.batch_id).map((r) => <RecordingCard key={r.id} rec={r} />)}
+                    </div>
+                  </div>
+                )}
               </div>
             )
           )}
@@ -241,14 +258,17 @@ export default function CoursePlayer() {
           )}
 
           {tab === 'quizzes' && (
-            quizzes.length === 0 ? <EmptyState icon="📝" title="No tests yet" hint="Your teacher will publish quizzes and exams here." /> : (
+            quizzes.length === 0 ? <EmptyState icon="📝" title="No tests yet" hint="Your teacher will publish weekly tests and exams here." /> : (
               <div className="space-y-3">
-                {quizzes.map((q) => {
+                {[...quizzes]
+                  .sort((a, b) => (a.week_no ?? 999) - (b.week_no ?? 999))
+                  .map((q) => {
                   const attempt = attempts.find((a) => a.quiz_id === q.id)
                   return (
                     <div key={q.id} className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-5 py-4">
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {q.week_no != null && <Badge tone="indigo">WEEK {q.week_no}</Badge>}
                           <p className="font-semibold text-slate-900">{q.title}</p>
                           <Badge tone={q.is_graded ? 'amber' : 'green'}>{q.is_graded ? 'GRADED EXAM' : 'PRACTICE'}</Badge>
                         </div>

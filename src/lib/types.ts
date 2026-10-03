@@ -58,9 +58,18 @@ export interface Batch {
   title: string
   scheduled_at: string
   duration_min: number
+  max_students: number
   status: 'scheduled' | 'live' | 'completed' | 'cancelled'
   created_at: string
   course?: Course
+}
+
+export interface BatchEnrollment {
+  id: string
+  batch_id: string
+  student_id: string
+  created_at: string
+  student?: Profile
 }
 
 export interface Enrollment {
@@ -114,6 +123,7 @@ export interface Quiz {
   description: string | null
   time_limit_min: number
   is_graded: boolean
+  week_no: number | null
   created_by: string | null
   created_at: string
 }
