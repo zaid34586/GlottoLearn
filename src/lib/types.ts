@@ -26,6 +26,7 @@ export interface Course {
   cover_url: string | null
   teacher_id: string | null
   status: 'draft' | 'published'
+  paddle_price_id?: string | null
   created_at: string
   language?: Language
   teacher?: Profile

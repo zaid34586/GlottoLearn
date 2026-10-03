@@ -177,7 +177,7 @@ export default function CourseDetail() {
               </button>
             )}
             {isDemoPayments && course.price_inr > 0 && (
-              <p className="mt-3 text-center text-[11px] text-amber-600">⚠ Demo payment mode — configure Razorpay keys for live checkout.</p>
+              <p className="mt-3 text-center text-[11px] text-amber-600">⚠ Demo payment mode — connect Paddle for live checkout.</p>
             )}
             {message && <p className="mt-3 text-center text-sm text-red-600">{message}</p>}
           </div>

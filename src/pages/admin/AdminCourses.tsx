@@ -61,6 +61,11 @@ export default function AdminCourses() {
     load()
   }
 
+  async function setPaddlePrice(course: Course, priceId: string) {
+    await supabase.from('courses').update({ paddle_price_id: priceId.trim() || null }).eq('id', course.id)
+    load()
+  }
+
   if (loading) return <PageLoader />
 
   return (
@@ -78,7 +83,7 @@ export default function AdminCourses() {
       ) : (
         <div className="mt-6 space-y-3">
           {courses.map((c) => (
-            <div key={c.id} className="glass grid gap-4 rounded-2xl p-5 lg:grid-cols-[1.5fr_1fr_1fr_auto] lg:items-center">
+            <div key={c.id} className="glass grid gap-4 rounded-2xl p-5 lg:grid-cols-[1.5fr_1fr_1fr_1.4fr_auto] lg:items-center">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-display truncate font-bold text-slate-900">{c.title}</p>
@@ -96,6 +101,17 @@ export default function AdminCourses() {
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Price (₹)</label>
                 <input className="field !py-2" type="number" min="0" defaultValue={c.price_inr} onBlur={(e) => setPrice(c, e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Paddle Price ID</label>
+                <input
+                  className="field !py-2"
+                  placeholder="pri_… (empty = demo)"
+                  defaultValue={c.paddle_price_id ?? ''}
+                  onBlur={(e) => {
+                    if (e.target.value !== (c.paddle_price_id ?? '')) setPaddlePrice(c, e.target.value)
+                  }}
+                />
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link to={`/teach/courses/${c.id}`} className="btn-ghost !py-2" title="Upload lessons, modules and quizzes">📦 Content</Link>

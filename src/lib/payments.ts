@@ -2,26 +2,35 @@ import type { Course } from './types'
 import { supabase } from './supabase'
 
 /**
- * Payment flow.
+ * Payment flow — Paddle Billing (overlay checkout, client-side token).
  *
- * Real mode:  VITE_RAZORPAY_KEY_ID is set -> Razorpay Checkout opens.
- * Demo mode:  no key configured -> a clearly-labelled demo checkout that
- *             records the payment directly. Swap to a real gateway by setting
- *             the key + adding server-side order creation.
+ * Paddle mode: VITE_PADDLE_CLIENT_TOKEN is set AND the course has a
+ *              paddle_price_id -> Paddle overlay checkout opens.
+ * Demo mode:   otherwise -> a clearly-labelled demo checkout that records
+ *              the payment directly so the full flow stays testable.
+ *
+ * v1 note: completion is captured from the checkout.completed event.
+ * For production-grade guarantee, add a Paddle webhook -> server verify.
  */
-export const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined
-export const isDemoPayments = !razorpayKeyId
+export const paddleClientToken = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string | undefined
+export const isDemoPayments = !paddleClientToken
 
-function loadRazorpay(): Promise<boolean> {
-  return new Promise((resolve) => {
+type PaddleEvent = { name: string; data?: any; error?: any }
+
+let paddleReady: Promise<boolean> | null = null
+
+function loadPaddle(): Promise<boolean> {
+  if (paddleReady) return paddleReady
+  paddleReady = new Promise((resolve) => {
     if (typeof window === 'undefined') return resolve(false)
-    if ((window as any).Razorpay) return resolve(true)
+    if ((window as any).Paddle) return resolve(true)
     const script = document.createElement('script')
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js'
     script.onload = () => resolve(true)
     script.onerror = () => resolve(false)
     document.body.appendChild(script)
   })
+  return paddleReady
 }
 
 export interface CheckoutArgs {
@@ -33,56 +42,81 @@ export interface CheckoutArgs {
   onError: (message: string) => void
 }
 
-export async function startCheckout({ course, studentName, studentEmail, userId, onPaid, onError }: CheckoutArgs) {
-  if (isDemoPayments) {
-    const { data, error } = await supabase
-      .from('payments')
-      .insert({
-        student_id: userId,
-        course_id: course.id,
-        amount: course.price_inr,
-        gateway: 'demo',
-        gateway_ref: 'DEMO-' + crypto.randomUUID().slice(0, 8),
-        status: 'paid',
-      })
-      .select('id')
-      .single()
+async function recordPayment(userId: string, course: Course, gateway: string, gatewayRef: string) {
+  return supabase
+    .from('payments')
+    .insert({
+      student_id: userId,
+      course_id: course.id,
+      amount: course.price_inr,
+      gateway,
+      gateway_ref: gatewayRef,
+      status: 'paid',
+    })
+    .select('id')
+    .single()
+}
+
+export async function startCheckout({ course, studentEmail, userId, onPaid, onError }: CheckoutArgs) {
+  // Demo mode — no Paddle token, or this course has no Paddle price attached
+  if (isDemoPayments || !course.paddle_price_id) {
+    const { data, error } = await recordPayment(userId, course, 'demo', 'DEMO-' + crypto.randomUUID().slice(0, 8))
     if (error) return onError(error.message)
     onPaid(data.id)
     return
   }
 
-  const ok = await loadRazorpay()
+  const ok = await loadPaddle()
   if (!ok) return onError('Could not load payment gateway. Check your connection.')
 
-  // NOTE: production hardening requires a server endpoint that creates the
-  // Razorpay order and verifies the signature. This client-first integration
-  // records the payment after checkout.success for v1.
-  const rzp = new (window as any).Razorpay({
-    key: razorpayKeyId,
-    amount: Math.round(course.price_inr * 100),
-    currency: 'INR',
-    name: 'GlottoLearn',
-    description: course.title,
-    prefill: { name: studentName, email: studentEmail },
-    theme: { color: '#6366f1' },
-    handler: async (resp: any) => {
-      const { data, error } = await supabase
-        .from('payments')
-        .insert({
-          student_id: userId,
-          course_id: course.id,
-          amount: course.price_inr,
-          gateway: 'razorpay',
-          gateway_ref: resp.razorpay_payment_id,
-          status: 'paid',
-        })
-        .select('id')
-        .single()
-      if (error) return onError(error.message)
-      onPaid(data.id)
+  const Paddle = (window as any).Paddle
+
+  let completed: ((paymentId: string) => void) | null = null
+  let failed: ((msg: string) => void) | null = null
+  let gotTransaction = false
+
+  try {
+    if (import.meta.env.VITE_PADDLE_ENV === 'sandbox') Paddle.Environment.set('sandbox')
+    Paddle.Initialize({
+      token: paddleClientToken,
+      eventCallback: (event: PaddleEvent) => {
+        if (event.name === 'checkout.completed' && event.data) {
+          gotTransaction = true
+          completed?.(event.data.transaction_id ?? 'paddle-' + Date.now())
+        }
+        if (event.name === 'checkout.closed' && !gotTransaction) {
+          failed?.('Payment cancelled.')
+        }
+        if (event.name === 'checkout.error') {
+          failed?.(event.error?.message ?? 'Payment failed. Please try again.')
+        }
+      },
+    })
+  } catch {
+    // already initialized in this session — continue to open
+  }
+
+  Paddle.Checkout.open({
+    settings: {
+      displayMode: 'overlay',
+      theme: 'light',
+      locale: 'en',
     },
-    modal: { ondismiss: () => onError('Payment cancelled.') },
+    items: [{ priceId: course.paddle_price_id, quantity: 1 }],
+    customer: { email: studentEmail },
+    customData: { user_id: userId, course_id: course.id, course_title: course.title },
   })
-  rzp.open()
+
+  await new Promise<void>((resolve) => {
+    completed = async (txnId: string) => {
+      const { data, error } = await recordPayment(userId, course, 'paddle', txnId)
+      if (error) failed?.(error.message)
+      else onPaid(data.id)
+      resolve()
+    }
+    failed = (msg: string) => {
+      onError(msg)
+      resolve()
+    }
+  })
 }

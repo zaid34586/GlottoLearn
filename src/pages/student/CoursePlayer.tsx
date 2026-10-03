@@ -169,17 +169,37 @@ export default function CoursePlayer() {
           {tab === 'lessons' && (
             activeLesson ? (
               <div>
-                <div className="overflow-hidden rounded-2xl bg-black">
-                  {videoUrl ? (
-                    <video key={videoUrl} src={videoUrl} controls className="aspect-video w-full" />
-                  ) : (
-                    <div className="flex aspect-video items-center justify-center text-slate-400"><PageLoader /></div>
-                  )}
-                </div>
+                {activeLesson.video_path ? (
+                  <div className="overflow-hidden rounded-2xl bg-black">
+                    {videoUrl ? (
+                      <video key={videoUrl} src={videoUrl} controls className="aspect-video w-full" />
+                    ) : (
+                      <div className="flex aspect-video items-center justify-center text-slate-400"><PageLoader /></div>
+                    )}
+                  </div>
+                ) : activeLesson.content ? (
+                  <div className="glass-strong rounded-2xl p-6 md:p-8">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/15 text-lg">📖</span>
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">Reading Lesson</span>
+                    </div>
+                    <div className="space-y-4">
+                      {activeLesson.content.split(/\n{2,}/).map((para, i) => (
+                        <p key={i} className="whitespace-pre-line text-[15px] leading-relaxed text-slate-700">{para.trim()}</p>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex aspect-video items-center justify-center rounded-2xl border border-dashed border-slate-200 text-sm text-slate-400">
+                    This lesson has no content yet.
+                  </div>
+                )}
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="font-display text-lg font-bold text-slate-900">{activeLesson.title}</h2>
-                    {activeLesson.content && <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeLesson.content}</p>}
+                    {activeLesson.content && activeLesson.video_path && (
+                      <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeLesson.content}</p>
+                    )}
                   </div>
                   <button
                     className={doneIds.has(activeLesson.id) ? 'btn-ghost' : 'btn-primary'}
@@ -190,7 +210,7 @@ export default function CoursePlayer() {
                 </div>
               </div>
             ) : (
-              <EmptyState icon="👆" title="Select a lesson" hint="Pick a lesson from the sidebar to start watching." />
+              <EmptyState icon="👆" title="Select a lesson" hint="Pick a lesson from the sidebar to start learning." />
             )
           )}
 
