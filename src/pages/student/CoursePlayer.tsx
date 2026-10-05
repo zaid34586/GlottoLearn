@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { Progress, Badge, PageLoader, EmptyState } from '../../components/ui'
+import { Progress, Badge, PageLoader, EmptyState, Spinner } from '../../components/ui'
 import { formatDuration } from '../../lib/utils'
 import { getLangTheme } from '../../lib/langTheme'
 import type { Course, Module, Lesson, Material, Recording, Quiz, LessonProgress, QuizAttempt, Batch } from '../../lib/types'
@@ -222,7 +222,7 @@ export default function CoursePlayer() {
                   {recordings.filter((r) => !r.batch_id).length === 0 ? (
                     <p className="text-sm text-slate-400">No standalone recordings yet.</p>
                   ) : (
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {recordings.filter((r) => !r.batch_id).map((r) => <RecordingCard key={r.id} rec={r} />)}
                     </div>
                   )}
@@ -230,7 +230,7 @@ export default function CoursePlayer() {
                 {recordings.some((r) => r.batch_id) && (
                   <div>
                     <h3 className="font-display mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">🔴 Live Class Replays (your batch only)</h3>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {recordings.filter((r) => r.batch_id).map((r) => <RecordingCard key={r.id} rec={r} />)}
                     </div>
                   </div>
@@ -327,11 +327,22 @@ function RecordingCard({ rec }: { rec: Recording }) {
     supabase.storage.from('videos').createSignedUrl(rec.video_path, 3600).then(({ data }) => setUrl(data?.signedUrl ?? null))
   }, [rec.video_path])
   return (
-    <div className="glass overflow-hidden rounded-2xl">
-      {url && <video key={url} src={url} controls className="aspect-video w-full bg-black" />}
-      <div className="p-4">
-        <p className="font-semibold text-slate-900">{rec.title}</p>
-        <p className="text-xs text-slate-400">{formatDate(rec.created_at)} · {formatDuration(rec.duration_sec)}</p>
+    <div className="glass glass-hover group overflow-hidden rounded-2xl">
+      <div className="relative aspect-video bg-black">
+        {url ? (
+          <video key={url} src={url} controls preload="metadata" playsInline className="h-full w-full" />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <Spinner className="h-6 w-6 border-slate-600 border-t-indigo-400" />
+          </div>
+        )}
+        <span className="pointer-events-none absolute bottom-2 right-2 rounded-md bg-black/85 px-1.5 py-0.5 text-[11px] font-bold text-white">
+          {rec.duration_sec ? formatDuration(rec.duration_sec) : 'Video'}
+        </span>
+      </div>
+      <div className="p-3">
+        <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">{rec.title}</p>
+        <p className="mt-1 text-xs text-slate-400">{formatDate(rec.created_at)}</p>
       </div>
     </div>
   )

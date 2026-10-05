@@ -6,11 +6,13 @@ import { supabase } from './supabase'
  *
  * Paddle mode: VITE_PADDLE_CLIENT_TOKEN is set AND the course has a
  *              paddle_price_id -> Paddle overlay checkout opens.
- * Demo mode:   otherwise -> a clearly-labelled demo checkout that records
- *              the payment directly so the full flow stays testable.
+ *              Completion is recorded by the `paddle-webhook` edge
+ *              function (signature-verified, service role). The client
+ *              only polls enroll_in_course() until the webhook lands.
+ * Demo mode:   otherwise -> record_demo_payment() RPC, gated server-side
+ *              by the app_flags.demo_payments flag.
  *
- * v1 note: completion is captured from the checkout.completed event.
- * For production-grade guarantee, add a Paddle webhook -> server verify.
+ * The client can never write payment rows directly (migration 0003).
  */
 export const paddleClientToken = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string | undefined
 export const isDemoPayments = !paddleClientToken
@@ -38,31 +40,29 @@ export interface CheckoutArgs {
   studentName: string
   studentEmail: string
   userId: string
-  onPaid: (paymentId: string) => void
+  onPaid: () => void
   onError: (message: string) => void
 }
 
-async function recordPayment(userId: string, course: Course, gateway: string, gatewayRef: string) {
-  return supabase
-    .from('payments')
-    .insert({
-      student_id: userId,
-      course_id: course.id,
-      amount: course.price_inr,
-      gateway,
-      gateway_ref: gatewayRef,
-      status: 'paid',
-    })
-    .select('id')
-    .single()
+/** Poll enroll_in_course() until the Paddle webhook has recorded payment. */
+async function waitForEnrollment(courseId: string): Promise<string | null> {
+  const deadline = Date.now() + 60_000
+  let last = 'Payment received, but enrollment is still processing. Check My Courses in a minute.'
+  for (;;) {
+    const { error } = await supabase.rpc('enroll_in_course', { p_course_id: courseId })
+    if (!error) return null
+    last = error.message
+    if (Date.now() >= deadline) return last
+    await new Promise((r) => setTimeout(r, 2000))
+  }
 }
 
 export async function startCheckout({ course, studentEmail, userId, onPaid, onError }: CheckoutArgs) {
   // Demo mode — no Paddle token, or this course has no Paddle price attached
   if (isDemoPayments || !course.paddle_price_id) {
-    const { data, error } = await recordPayment(userId, course, 'demo', 'DEMO-' + crypto.randomUUID().slice(0, 8))
+    const { error } = await supabase.rpc('record_demo_payment', { p_course_id: course.id })
     if (error) return onError(error.message)
-    onPaid(data.id)
+    onPaid()
     return
   }
 
@@ -71,7 +71,7 @@ export async function startCheckout({ course, studentEmail, userId, onPaid, onEr
 
   const Paddle = (window as any).Paddle
 
-  let completed: ((paymentId: string) => void) | null = null
+  let completed: (() => void) | null = null
   let failed: ((msg: string) => void) | null = null
   let gotTransaction = false
 
@@ -82,7 +82,7 @@ export async function startCheckout({ course, studentEmail, userId, onPaid, onEr
       eventCallback: (event: PaddleEvent) => {
         if (event.name === 'checkout.completed' && event.data) {
           gotTransaction = true
-          completed?.(event.data.transaction_id ?? 'paddle-' + Date.now())
+          completed?.()
         }
         if (event.name === 'checkout.closed' && !gotTransaction) {
           failed?.('Payment cancelled.')
@@ -108,11 +108,14 @@ export async function startCheckout({ course, studentEmail, userId, onPaid, onEr
   })
 
   await new Promise<void>((resolve) => {
-    completed = async (txnId: string) => {
-      const { data, error } = await recordPayment(userId, course, 'paddle', txnId)
-      if (error) failed?.(error.message)
-      else onPaid(data.id)
-      resolve()
+    completed = async () => {
+      // Webhook records payment + enrollment server-side; poll until it lands.
+      const errMsg = await waitForEnrollment(course.id)
+      if (errMsg) failed?.(errMsg)
+      else {
+        onPaid()
+        resolve()
+      }
     }
     failed = (msg: string) => {
       onError(msg)

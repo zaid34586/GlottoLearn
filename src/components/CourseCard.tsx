@@ -4,7 +4,7 @@ import { formatINR } from '../lib/utils'
 import { getLangTheme } from '../lib/langTheme'
 import type { Course } from '../lib/types'
 
-export function CourseCard({ course }: { course: Course }) {
+export function CourseCard({ course, nextClass }: { course: Course; nextClass?: string | null }) {
   const t = getLangTheme(course.language)
   return (
     <TiltCard className="h-full">
@@ -35,6 +35,11 @@ export function CourseCard({ course }: { course: Course }) {
           <div className="absolute left-3 top-3 flex gap-2">
             <Badge tone="indigo">{course.level}</Badge>
           </div>
+          {nextClass && (
+            <span className="absolute right-3 top-3 rounded-full bg-red-600/90 px-2.5 py-1 text-[11px] font-bold text-white shadow backdrop-blur transition duration-500 group-hover:scale-105">
+              🔴 Next class {new Date(nextClass).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}
+            </span>
+          )}
         </div>
         <div className="flex flex-1 flex-col gap-2 p-5">
           <h3 className="font-display line-clamp-2 text-lg font-semibold text-slate-900">{course.title}</h3>

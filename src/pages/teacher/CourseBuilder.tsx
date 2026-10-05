@@ -3,10 +3,11 @@ import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { PageLoader, EmptyState, Badge, Modal, StatCard } from '../../components/ui'
+import { CoverUpload, DemoVideoUpload } from '../../components/MediaUpload'
 import { formatINR, cn, formatDate } from '../../lib/utils'
-import type { Course, Module, Lesson, Material, Quiz, Question, Enrollment, Announcement, Profile } from '../../lib/types'
+import type { Course, Module, Lesson, Material, Quiz, Question, Enrollment, Announcement, Profile, Batch } from '../../lib/types'
 
-type Section = 'content' | 'quizzes' | 'materials' | 'announcements' | 'students'
+type Section = 'content' | 'live' | 'settings' | 'quizzes' | 'materials' | 'announcements' | 'students'
 
 export default function CourseBuilder() {
   const { courseId } = useParams()
@@ -19,21 +20,25 @@ export default function CourseBuilder() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [students, setStudents] = useState<Profile[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [batches, setBatches] = useState<Batch[]>([])
   const [section, setSection] = useState<Section>('content')
   const [loading, setLoading] = useState(true)
   const [quizBuilderId, setQuizBuilderId] = useState<string | null>(null)
+  const [desc, setDesc] = useState('')
 
   // modals
   const [showModule, setShowModule] = useState(false)
   const [showLesson, setShowLesson] = useState<Module | null>(null)
   const [showQuiz, setShowQuiz] = useState(false)
   const [showAnnounce, setShowAnnounce] = useState(false)
+  const [showSchedule, setShowSchedule] = useState(false)
+  const [schedForm, setSchedForm] = useState({ title: '', date: '', time: '', duration_min: '60', max_students: '10' })
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function loadAll() {
     if (!courseId) return
-    const [c, m, l, mat, q, e, an] = await Promise.all([
+    const [c, m, l, mat, q, e, an, b] = await Promise.all([
       supabase.from('courses').select('*, language:languages(*), teacher:profiles!courses_teacher_id_fkey(*)').eq('id', courseId).single(),
       supabase.from('modules').select('*').eq('course_id', courseId).order('position'),
       supabase.from('lessons').select('*').eq('course_id', courseId).order('position'),
@@ -41,6 +46,7 @@ export default function CourseBuilder() {
       supabase.from('quizzes').select('*').eq('course_id', courseId).order('created_at', { ascending: false }),
       supabase.from('enrollments').select('*').eq('course_id', courseId),
       supabase.from('announcements').select('*').eq('course_id', courseId).order('created_at', { ascending: false }),
+      supabase.from('batches').select('*').eq('course_id', courseId).order('scheduled_at', { ascending: false }),
     ])
     setCourse((c.data as unknown as Course) ?? null)
     setModules((m.data as Module[]) ?? [])
@@ -49,10 +55,15 @@ export default function CourseBuilder() {
     setQuizzes((q.data as Quiz[]) ?? [])
     setEnrollments((e.data as Enrollment[]) ?? [])
     setAnnouncements((an.data as Announcement[]) ?? [])
+    setBatches((b.data as Batch[]) ?? [])
     setLoading(false)
   }
 
   useEffect(() => { loadAll() }, [courseId])
+
+  useEffect(() => {
+    setDesc(course?.description ?? '')
+  }, [course?.id, course?.description])
 
   useEffect(() => {
     if (enrollments.length === 0) return setStudents([])
@@ -161,8 +172,56 @@ export default function CourseBuilder() {
     loadAll()
   }
 
+  // ---------- Settings (description / cover / demo video) ----------
+  async function saveDescription() {
+    setError(null)
+    const { error } = await supabase.from('courses').update({ description: desc }).eq('id', course!.id)
+    if (error) return setError(error.message)
+    setCourse({ ...course!, description: desc })
+  }
+
+  async function saveCover(url: string | null) {
+    setError(null)
+    const { error } = await supabase.from('courses').update({ cover_url: url }).eq('id', course!.id)
+    if (error) return setError(error.message)
+    setCourse({ ...course!, cover_url: url })
+  }
+
+  async function saveDemo(path: string | null) {
+    setError(null)
+    const { error } = await supabase.from('courses').update({ demo_video_path: path }).eq('id', course!.id)
+    if (error) return setError(error.message)
+    setCourse({ ...course!, demo_video_path: path })
+  }
+
+  // ---------- Live classes ----------
+  async function scheduleClass(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    const scheduled_at = new Date(`${schedForm.date}T${schedForm.time}`).toISOString()
+    const { error } = await supabase.from('batches').insert({
+      course_id: course!.id,
+      teacher_id: profile!.id,
+      title: schedForm.title,
+      scheduled_at,
+      duration_min: Number(schedForm.duration_min) || 60,
+      max_students: Number(schedForm.max_students) || 10,
+    })
+    if (error) return setError(error.message)
+    setShowSchedule(false)
+    setSchedForm({ title: '', date: '', time: '', duration_min: '60', max_students: '10' })
+    loadAll()
+  }
+
+  async function cancelBatch(id: string) {
+    await supabase.from('batches').update({ status: 'cancelled' }).eq('id', id)
+    loadAll()
+  }
+
   const sections: { id: Section; label: string; icon: string }[] = [
     { id: 'content', label: 'Content', icon: '🎬' },
+    { id: 'live', label: 'Live Classes', icon: '🗓️' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
     { id: 'quizzes', label: 'Tests', icon: '📝' },
     { id: 'materials', label: 'Materials', icon: '📎' },
     { id: 'announcements', label: 'Announcements', icon: '📣' },
@@ -237,6 +296,77 @@ export default function CourseBuilder() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ------------- LIVE CLASSES ------------- */}
+        {section === 'live' && (
+          <div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-lg font-bold text-slate-900">Live Classes</h2>
+                <p className="text-sm text-slate-500">Students see these times on the course page and can reserve a seat.</p>
+              </div>
+              <button className="btn-primary !py-2" onClick={() => setShowSchedule(true)}>+ Schedule Class</button>
+            </div>
+            {batches.length === 0 ? (
+              <EmptyState
+                icon="🗓️"
+                title="No live classes scheduled"
+                hint="Schedule your first live class — students book limited seats and get a replay after."
+                action={<button className="btn-primary mt-2" onClick={() => setShowSchedule(true)}>+ Schedule Class</button>}
+              />
+            ) : (
+              <div className="space-y-3">
+                {batches.map((b) => {
+                  const isPast = b.status === 'completed' || b.status === 'cancelled'
+                  return (
+                    <div key={b.id} className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-5 py-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold text-slate-900">{b.title}</p>
+                          {b.status === 'live' ? <Badge tone="green">🔴 LIVE</Badge>
+                            : b.status === 'scheduled' ? <Badge tone="indigo">Scheduled</Badge>
+                            : <Badge tone={b.status === 'completed' ? 'slate' : 'red'}>{b.status.toUpperCase()}</Badge>}
+                        </div>
+                        <p className="mt-0.5 text-xs text-slate-400">{formatDate(b.scheduled_at)} · {b.duration_min} min · {b.max_students} seats</p>
+                      </div>
+                      {!isPast && (
+                        <div className="flex gap-2">
+                          <Link to={`/live/${b.id}`} className="btn-ghost !py-2">Room</Link>
+                          <button className="btn-danger !py-2" onClick={() => cancelBatch(b.id)}>Cancel</button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------- SETTINGS ------------- */}
+        {section === 'settings' && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="glass h-fit rounded-2xl p-5">
+              <h2 className="font-display text-lg font-bold text-slate-900">Course Description</h2>
+              <p className="mt-0.5 text-sm text-slate-500">Appears on your course card and course page.</p>
+              <textarea
+                className="field mt-4 min-h-32"
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="What will students learn in this course?"
+              />
+              <button className="btn-primary mt-3 !py-2" onClick={saveDescription} disabled={desc === (course.description ?? '')}>
+                Save Description
+              </button>
+            </div>
+            <div className="glass h-fit rounded-2xl p-5">
+              <CoverUpload value={course.cover_url} onChange={saveCover} pathPrefix={course.id} />
+            </div>
+            <div className="glass rounded-2xl p-5 lg:col-span-2">
+              <DemoVideoUpload value={course.demo_video_path ?? null} onChange={saveDemo} pathPrefix={course.id} />
+            </div>
           </div>
         )}
 
@@ -398,6 +528,42 @@ export default function CourseBuilder() {
         </form>
       </Modal>
 
+      <Modal open={showSchedule} onClose={() => setShowSchedule(false)} title="Schedule a Live Class">
+        <form onSubmit={scheduleClass} className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Class title</label>
+            <input
+              className="field"
+              required
+              value={schedForm.title}
+              onChange={(e) => setSchedForm({ ...schedForm, title: e.target.value })}
+              placeholder="Lesson 5 — Everyday Conversations"
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Date</label>
+              <input className="field" type="date" required value={schedForm.date} onChange={(e) => setSchedForm({ ...schedForm, date: e.target.value })} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Time</label>
+              <input className="field" type="time" required value={schedForm.time} onChange={(e) => setSchedForm({ ...schedForm, time: e.target.value })} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Minutes</label>
+              <input className="field" type="number" min="15" value={schedForm.duration_min} onChange={(e) => setSchedForm({ ...schedForm, duration_min: e.target.value })} />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Max students in this batch</label>
+            <input className="field" type="number" min="1" value={schedForm.max_students} onChange={(e) => setSchedForm({ ...schedForm, max_students: e.target.value })} />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button className="btn-primary w-full">Schedule Class</button>
+          <p className="text-center text-xs text-slate-400">Students reserve seats from the course page / Live Classes tab. Replay goes to this batch only.</p>
+        </form>
+      </Modal>
+
       <QuizEditorModal quizId={quizBuilderId} onClose={() => { setQuizBuilderId(null); loadAll() }} />
     </div>
   )
@@ -408,6 +574,7 @@ function QuizEditorModal({ quizId, onClose }: { quizId: string | null; onClose: 
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [attempts, setAttempts] = useState<(any & { profiles?: Profile })[]>([])
+  const [qType, setQType] = useState<Question['type']>('mcq')
 
   async function load() {
     if (!quizId) return
@@ -443,6 +610,7 @@ function QuizEditorModal({ quizId, onClose }: { quizId: string | null; onClose: 
       position: questions.length,
     })
     ;(e.target as HTMLFormElement).reset()
+    setQType('mcq')
     load()
   }
 
@@ -469,18 +637,35 @@ function QuizEditorModal({ quizId, onClose }: { quizId: string | null; onClose: 
             <div className="space-y-3">
               <textarea className="field min-h-16" name="text" required placeholder="Question text" />
               <div className="grid grid-cols-2 gap-3">
-                <select className="field" name="type" defaultValue="mcq">
+                <select className="field" name="type" value={qType} onChange={(e) => setQType(e.target.value as Question['type'])}>
                   <option value="mcq">Multiple choice</option>
                   <option value="truefalse">True / False</option>
                   <option value="short">Short answer</option>
                 </select>
                 <input className="field" name="marks" type="number" min="1" defaultValue="1" placeholder="Marks" />
               </div>
-              <input className="field" name="opt_a" placeholder="Option A" />
-              <input className="field" name="opt_b" placeholder="Option B" />
-              <input className="field" name="opt_c" placeholder="Option C (optional)" />
-              <input className="field" name="opt_d" placeholder="Option D (optional)" />
-              <input className="field" name="correct_answer" placeholder="Correct answer (exact text)" />
+              {qType === 'mcq' && (
+                <>
+                  <input className="field" name="opt_a" placeholder="Option A" required />
+                  <input className="field" name="opt_b" placeholder="Option B" required />
+                  <input className="field" name="opt_c" placeholder="Option C (optional)" />
+                  <input className="field" name="opt_d" placeholder="Option D (optional)" />
+                  <input className="field" name="correct_answer" placeholder="Correct answer — same text as the option" required />
+                  <p className="!-mt-1 text-[11px] text-slate-400">Answer likhte waqt option ka text bilkul same rakhein (e.g. &ldquo;Bonjour&rdquo;).</p>
+                </>
+              )}
+              {qType === 'truefalse' && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Correct answer</label>
+                  <select className="field" name="correct_answer" defaultValue="True">
+                    <option value="True">True</option>
+                    <option value="False">False</option>
+                  </select>
+                </div>
+              )}
+              {qType === 'short' && (
+                <input className="field" name="correct_answer" placeholder="Expected answer (blank = teacher graded later)" />
+              )}
               <button className="btn-primary w-full">Add Question</button>
             </div>
           </form>
@@ -488,7 +673,7 @@ function QuizEditorModal({ quizId, onClose }: { quizId: string | null; onClose: 
             {questions.map((q, i) => (
               <div key={q.id} className="glass flex items-start justify-between gap-3 rounded-xl px-4 py-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-900">Q{i + 1}. {q.text}</p>
+                  <p className="line-clamp-2 text-sm font-medium text-slate-900">Q{i + 1}. {q.text}</p>
                   <p className="text-xs text-slate-400">{q.type} · {q.marks} marks · answer: {q.correct_answer || '(teacher graded)'}</p>
                 </div>
                 <button className="text-xs font-semibold text-red-600 hover:text-red-600" onClick={() => deleteQuestion(q.id)}>✕</button>

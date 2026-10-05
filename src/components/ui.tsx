@@ -52,7 +52,7 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
-      <div className={cn('glass-strong relative w-full rounded-2xl p-6 shadow-2xl animate-fade-up', wide ? 'max-w-3xl' : 'max-w-md')}>
+      <div className={cn('glass-strong relative max-h-[85vh] w-full overflow-y-auto rounded-2xl p-6 shadow-2xl animate-fade-up', wide ? 'max-w-3xl' : 'max-w-md')}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-display text-lg font-bold text-slate-900">{title}</h3>
           <button onClick={onClose} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900">

@@ -18,20 +18,19 @@ export default function QuizResult() {
 
   useEffect(() => {
     if (!attemptId || !session) return
-    Promise.all([
-      supabase.from('quiz_attempts').select('*').eq('id', attemptId).single(),
-    ]).then(async ([a]) => {
-      const att = a.data as QuizAttempt
-      setAttempt(att)
-      if (att) {
-        const [q, qs, ans] = await Promise.all([
-          supabase.from('quizzes').select('*').eq('id', att.quiz_id).single(),
-          supabase.from('questions').select('*').eq('quiz_id', att.quiz_id).order('position'),
-          supabase.from('answers').select('*').eq('attempt_id', attemptId),
-        ])
-        setQuiz(q.data as Quiz)
-        setQuestions((qs.data as Question[]) ?? [])
-        setAnswers((ans.data as Answer[]) ?? [])
+    // Server returns attempt + quiz + questions (incl. answers for review) + saved answers
+    supabase.rpc('get_attempt_review', { p_attempt_id: attemptId }).then(({ data }) => {
+      const r = data as {
+        attempt: QuizAttempt
+        quiz: Quiz
+        questions: Question[]
+        answers: Answer[]
+      } | null
+      if (r) {
+        setAttempt(r.attempt)
+        setQuiz(r.quiz)
+        setQuestions(r.questions ?? [])
+        setAnswers(r.answers ?? [])
       }
       setLoading(false)
     })

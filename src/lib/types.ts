@@ -24,6 +24,7 @@ export interface Course {
   level: string
   price_inr: number
   cover_url: string | null
+  demo_video_path?: string | null
   teacher_id: string | null
   status: 'draft' | 'published'
   paddle_price_id?: string | null

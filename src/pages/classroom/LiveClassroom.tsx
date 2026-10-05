@@ -62,10 +62,9 @@ export default function LiveClassroom() {
       setBatch(b)
       setCourseTitle((b as any).course?.title ?? '')
       if (b.teacher_id === profile.id || profile.role === 'admin') return setAllowed(true)
-      const { data: enr } = await supabase
-        .from('enrollments').select('id')
-        .eq('course_id', (b as any).course_id).eq('student_id', profile.id).maybeSingle()
-      setAllowed(!!enr)
+      // Server-side: requires course enrollment + a booked seat in this batch
+      const { data: canJoin } = await supabase.rpc('can_join_batch', { p_batch_id: batchId })
+      setAllowed(!!canJoin)
     })
   }, [batchId, session, profile])
 
@@ -335,7 +334,7 @@ export default function LiveClassroom() {
 
   if (allowed === null) return <PageLoader />
   if (!allowed || !batch) {
-    return <EmptyState icon="🔒" title="You don't have access to this class" hint="Only enrolled students and the course teacher can join." action={<Link to="/dashboard" className="btn-ghost mt-2">Back to Dashboard</Link>} />
+    return <EmptyState icon="🔒" title="You don't have access to this class" hint="Enroll in the course and reserve a free seat in Live Classes first." action={<Link to="/dashboard" className="btn-ghost mt-2">Back to Dashboard</Link>} />
   }
 
   const peerList = Object.values(peers)

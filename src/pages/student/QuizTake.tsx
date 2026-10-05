@@ -16,12 +16,13 @@ export default function QuizTake() {
   const [remaining, setRemaining] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!quizId || !session) return
     Promise.all([
       supabase.from('quizzes').select('*').eq('id', quizId).single(),
-      supabase.from('questions').select('*').eq('quiz_id', quizId).order('position'),
+      supabase.rpc('get_quiz_questions', { p_quiz_id: quizId }),
       supabase.from('quiz_attempts').select('*').eq('quiz_id', quizId).eq('student_id', session.user.id).maybeSingle(),
     ]).then(async ([q, qs, a]) => {
       const quizData = q.data as Quiz
@@ -81,24 +82,13 @@ export default function QuizTake() {
   async function submit(auto = false) {
     if (!attempt || submitting) return
     setSubmitting(true)
-    let score = 0
-    for (const q of questions) {
-      const ans = (answers[q.id] ?? '').trim()
-      let correct = false
-      if (q.type === 'mcq' || q.type === 'truefalse') {
-        correct = ans.toLowerCase() === q.correct_answer.trim().toLowerCase()
-        if (correct) score += q.marks
-      }
-      // 'short' type needs teacher grading — auto 0 until graded
-      await supabase.from('answers').upsert(
-        { attempt_id: attempt.id, question_id: q.id, answer_text: ans, is_correct: q.type === 'short' ? null : correct, marks_awarded: correct ? q.marks : 0 },
-        { onConflict: 'attempt_id,question_id' },
-      )
+    // Server grades objective questions (correct_answer never reaches the client)
+    const { error } = await supabase.rpc('submit_quiz_attempt', { p_attempt_id: attempt.id })
+    if (error && !/already submitted/i.test(error.message)) {
+      setSubmitting(false)
+      setSubmitError(error.message)
+      return
     }
-    await supabase
-      .from('quiz_attempts')
-      .update({ submitted_at: new Date().toISOString(), score, total_marks: totalMarks, status: questions.some((q) => q.type === 'short') ? 'graded' : 'graded' })
-      .eq('id', attempt.id)
     navigate(`/quiz-result/${attempt.id}${auto ? '?auto=1' : ''}`)
   }
 
@@ -175,7 +165,8 @@ export default function QuizTake() {
         ))}
       </div>
 
-      <div className="sticky bottom-4 mt-6 flex justify-end">
+      <div className="sticky bottom-4 mt-6 flex items-center justify-end gap-3">
+        {submitError && <span className="text-sm text-red-600">{submitError}</span>}
         <button className="btn-primary !px-8 !py-3" disabled={submitting} onClick={() => submit()}>
           {submitting ? 'Submitting…' : 'Submit Test'}
         </button>

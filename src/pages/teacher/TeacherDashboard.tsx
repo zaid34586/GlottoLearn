@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { StatCard, PageLoader, EmptyState, Badge, Modal } from '../../components/ui'
+import { CoverUpload } from '../../components/MediaUpload'
 import { formatINR, formatDate, LEVELS } from '../../lib/utils'
 import type { Course, Language, Batch, Profile, Enrollment } from '../../lib/types'
 
@@ -15,7 +16,7 @@ export default function TeacherDashboard() {
   const [languages, setLanguages] = useState<Language[]>([])
   const [showCreate, setShowCreate] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [form, setForm] = useState({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0' })
+  const [form, setForm] = useState({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', cover_url: '' })
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -52,12 +53,13 @@ export default function TeacherDashboard() {
       language_id: form.language_id ? Number(form.language_id) : null,
       level: form.level,
       price_inr: Number(form.price_inr) || 0,
+      cover_url: form.cover_url || null,
       teacher_id: profile.id,
       status: 'draft',
     })
     if (error) return setError(error.message)
     setShowCreate(false)
-    setForm({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0' })
+    setForm({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', cover_url: '' })
     const { data } = await supabase.from('courses').select('*, language:languages(*), teacher:profiles!courses_teacher_id_fkey(*)').eq('teacher_id', profile.id).order('created_at', { ascending: false })
     setCourses((data as unknown as Course[]) ?? [])
   }
@@ -187,6 +189,7 @@ export default function TeacherDashboard() {
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Price (₹, 0 = free)</label>
             <input className="field" type="number" min="0" value={form.price_inr} onChange={(e) => setForm({ ...form, price_inr: e.target.value })} />
           </div>
+          <CoverUpload value={form.cover_url || null} onChange={(u) => setForm({ ...form, cover_url: u ?? '' })} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full">Create Course</button>
           <p className="text-center text-xs text-slate-400">Course starts as draft — add content, then publish from the builder.</p>

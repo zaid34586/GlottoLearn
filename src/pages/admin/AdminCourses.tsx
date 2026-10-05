@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { PageLoader, EmptyState, Badge, Modal } from '../../components/ui'
+import { CoverUpload } from '../../components/MediaUpload'
 import { formatINR, LEVELS } from '../../lib/utils'
 import type { Course, Language, Profile } from '../../lib/types'
 
@@ -12,7 +13,7 @@ export default function AdminCourses() {
   const [showCreate, setShowCreate] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', teacher_id: '' })
+  const [form, setForm] = useState({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', teacher_id: '', cover_url: '' })
 
   async function load() {
     const [c, p, l] = await Promise.all([
@@ -37,12 +38,13 @@ export default function AdminCourses() {
       language_id: form.language_id ? Number(form.language_id) : null,
       level: form.level,
       price_inr: Number(form.price_inr) || 0,
+      cover_url: form.cover_url || null,
       teacher_id: form.teacher_id || null,
       status: 'draft',
     })
     if (error) return setError(error.message)
     setShowCreate(false)
-    setForm({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', teacher_id: '' })
+    setForm({ title: '', description: '', language_id: '', level: 'Beginner', price_inr: '0', teacher_id: '', cover_url: '' })
     load()
   }
 
@@ -157,6 +159,7 @@ export default function AdminCourses() {
               {teachers.map((t) => <option key={t.id} value={t.id}>{t.full_name} ({t.role})</option>)}
             </select>
           </div>
+          <CoverUpload value={form.cover_url || null} onChange={(u) => setForm({ ...form, cover_url: u ?? '' })} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full">Create Course</button>
         </form>

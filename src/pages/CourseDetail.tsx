@@ -46,9 +46,9 @@ export default function CourseDetail() {
       return
     }
     if (course.price_inr === 0) {
-      // Free course — enroll directly
-      const { error } = await supabase.from('enrollments').insert({ course_id: course.id, student_id: session.user.id })
-      if (error && !error.message.includes('duplicate')) return setMessage(error.message)
+      // Free course — server validates published status + handles duplicates
+      const { error } = await supabase.rpc('enroll_in_course', { p_course_id: course.id })
+      if (error) return setMessage(error.message)
       setEnrolled(true)
       navigate(`/learn/${course.id}`)
       return
@@ -59,10 +59,9 @@ export default function CourseDetail() {
       studentName: profile.full_name,
       studentEmail: session.user.email ?? '',
       userId: session.user.id,
-      onPaid: async (paymentId) => {
-        const { error } = await supabase.from('enrollments').insert({ course_id: course.id, student_id: session.user.id, payment_id: paymentId })
+      onPaid: () => {
         setBuying(false)
-        if (error && !error.message.includes('duplicate')) return setMessage(error.message)
+        setEnrolled(true)
         navigate(`/learn/${course.id}`)
       },
       onError: (msg) => { setBuying(false); setMessage(msg) },
@@ -74,6 +73,9 @@ export default function CourseDetail() {
 
   const modules = Array.from(new Set(syllabus.map((s) => s.module_position)))
   const t = getLangTheme(course.language)
+  const demoUrl = course.demo_video_path
+    ? supabase.storage.from('demos').getPublicUrl(course.demo_video_path).data.publicUrl
+    : null
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -93,6 +95,17 @@ export default function CourseDetail() {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
         <div>
+          {/* Public demo / preview video */}
+          {demoUrl && (
+            <div className="glass mb-6 overflow-hidden rounded-2xl">
+              <div className="flex items-center gap-2 px-5 pt-4">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/15 text-base">▶️</span>
+                <p className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Free preview — watch before you buy</p>
+              </div>
+              <video key={demoUrl} src={demoUrl} controls preload="metadata" className="mt-3 aspect-video w-full bg-black" />
+            </div>
+          )}
+
           <p className="leading-relaxed text-slate-500">{course.description || 'A complete guided course with live classes, recorded lessons, quizzes and materials.'}</p>
 
           {course.teacher && (
